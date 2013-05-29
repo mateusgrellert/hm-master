@@ -1,0 +1,17 @@
+bin/
+doc/
+nbproject/
+lib/
+objects
+build/HM_vc10.sln
+build/HM_vc9.sln
+build/HM_vc8.sln
+build/vc10/
+build/vc9/
+build/vc8/
+HM.xcodeproj
+.cproject
+.project
+.settings
+.svn
+*.*~ #utilizado para ignorar arquivos temporários
