@@ -154,11 +154,12 @@ Void TComAnalytics::setCurrDepth(UInt d){
 
 Void TComAnalytics::analyze(){
     Int n_PU = calcPUNumber(currCU->getPartitionSize(currPartIdx));
-  
-    if(EN_OUTPUT_VIDEO){
-        TComVideoStats::printStatsInPics(currCU,currPartIdx,currMode,n_PU ,0,0);
+    
+    for(int puIdx = 0; puIdx < n_PU; puIdx++){
+        if(EN_OUTPUT_VIDEO)
+            TComVideoStats::printStatsInPics(currCU,currPartIdx,currMode,puIdx ,0,0);
+        
     }
-
     incPUCount(currCU->getPartitionSize(currPartIdx), currDepth);
     incModeCount(currMode, currDepth);
 }

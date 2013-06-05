@@ -47,6 +47,7 @@
 #include "TLibCommon/NAL.h"
 #include "NALwrite.h"
 #include "TLibCommon/TComAnalytics.h"
+#include "TLibCommon/TComVideoStats.h"
 #include <time.h>
 #include <math.h>
 
@@ -381,6 +382,8 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
   SEIDecodingUnitInfo decodingUnitInfoSEI;
   for ( Int iGOPid=0; iGOPid < m_iGopSize; iGOPid++ )
   {
+
+  
     UInt uiColDir = 1;
     //-- For time output for each slice
     long iBeforeTime = clock();
@@ -1451,6 +1454,10 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
 
           pcSlice->setTileOffstForMultES( uiOneBitstreamPerSliceLength );
           pcSlice->setTileLocationCount ( 0 );
+
+#if EN_OUTPUT_VIDEO
+  TComVideoStats::loadPics();
+#endif
           m_pcSliceEncoder->encodeSlice(pcPic, pcSubstreamsOut);
 #if EN_ANALYTICS
           TComAnalytics::resetStats();

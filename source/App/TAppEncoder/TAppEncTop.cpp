@@ -469,9 +469,7 @@ Void TAppEncTop::encode()
       m_cTEncTop.setFramesToBeEncoded(m_iFrameRcvd);
     }
     
-#if EN_OUTPUT_VIDEO
-  TComVideoStats::loadPics();
-#endif
+
 
     // call encoding function for one frame
     m_cTEncTop.encode( bEos, flush ? 0 : pcPicYuvOrg, m_cListPicYuvRec, outputAccessUnits, iNumEncoded );

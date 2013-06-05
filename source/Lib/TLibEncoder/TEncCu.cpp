@@ -1114,7 +1114,16 @@ Void TEncCu::xEncodeCU( TComDataCU* pcCU, UInt uiAbsPartIdx, UInt uiDepth )
   {
     bBoundary = true;
   }
-  
+
+#if EN_ANALYTICS
+  //if(!pcCU->getSlice()->isIntra()){
+        TComAnalytics::encodingStarted = true;
+        TComAnalytics::setCU(pcCU, uiAbsPartIdx);
+        if (uiDepth == pcCU->getDepth(uiAbsPartIdx))
+                TComAnalytics::analyze();
+  //}
+#endif
+        
   if( ( ( uiDepth < pcCU->getDepth( uiAbsPartIdx ) ) && ( uiDepth < (g_uiMaxCUDepth-g_uiAddCUDepth) ) ) || bBoundary )
   {
     UInt uiQNumParts = ( pcPic->getNumPartInCU() >> (uiDepth<<1) )>>2;
@@ -1135,14 +1144,7 @@ Void TEncCu::xEncodeCU( TComDataCU* pcCU, UInt uiAbsPartIdx, UInt uiDepth )
     return;
   }
   
-#if EN_ANALYTICS
-  //if(!pcCU->getSlice()->isIntra()){
-        TComAnalytics::encodingStarted = true;
-        TComAnalytics::setCU(pcCU, uiAbsPartIdx);
-        if (uiDepth == pcCU->getDepth(uiAbsPartIdx))
-                TComAnalytics::analyze();
-  //}
-#endif
+
   
   if( (g_uiMaxCUWidth>>uiDepth) >= pcCU->getSlice()->getPPS()->getMinCuDQPSize() && pcCU->getSlice()->getPPS()->getUseDQP())
   {

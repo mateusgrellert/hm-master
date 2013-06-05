@@ -32,6 +32,10 @@ public:
     static Void loadPics();
     static Void writeStatsVideo();
     static Void printStatsInPics(TComDataCU *&cu, UInt partIdx, UInt predMode, Int puIdx, Int mvH, Int mvV);
+    static Int getPUWidth(Int d, Int PUIdx, PartSize partSize);
+    static Int getPUHeight(Int d, Int PUIdx, PartSize partSize);
+    static Int getXOffSetInPU(Int d, Int PUIdx, PartSize partSize);
+    static Int getYOffSetInPU(Int d, Int PUIdx, PartSize partSize);
     static Void closeYUV();
     
 };
