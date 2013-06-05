@@ -1120,7 +1120,7 @@ Void TEncCu::xEncodeCU( TComDataCU* pcCU, UInt uiAbsPartIdx, UInt uiDepth )
         TComAnalytics::encodingStarted = true;
         TComAnalytics::setCU(pcCU, uiAbsPartIdx);
         if (uiDepth == pcCU->getDepth(uiAbsPartIdx))
-                TComAnalytics::analyze();
+                TComAnalytics::analyze(pcCU, uiAbsPartIdx);
   //}
 #endif
         

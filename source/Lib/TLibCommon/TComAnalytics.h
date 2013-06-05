@@ -47,7 +47,7 @@ public:
     static Void setFrameCount(Int n) {frameNum = n;};
     static Void setCurrDepth(UInt d);
     static Void setMv(TComDataCU *&cu, UInt partIdx, Int mvH, Int mvV);
-    static Void analyze();
+    static Void analyze(TComDataCU*& cu, UInt partIdx);
     static Int calcPUNumber(PartSize s);
 
     static Void incModeCount(UInt mode, UInt d);
@@ -64,6 +64,11 @@ public:
     static Void incMults(UInt num);
     static Void incDivs(UInt num);
     
+    static Int getPUWidth(Int d, Int PUIdx, PartSize partSize);
+    static Int getPUHeight(Int d, Int PUIdx, PartSize partSize);
+    static Int getXOffSetInPU(Int d, Int PUIdx, PartSize partSize);
+    static Int getYOffSetInPU(Int d, Int PUIdx, PartSize partSize);
+   
     static Void report();
     static Void resetStats();
     static Void resetStatsTotal();
