@@ -48,8 +48,13 @@ public:
     static Void setCurrDepth(UInt d);
     static Void setMv(TComDataCU *&cu, UInt partIdx, Int mvH, Int mvV);
     static Void analyze();
+    
     static Int calcPUNumber(PartSize s);
-
+    static Int getPUWidth(Int d, Int PUIdx, PartSize partSize);
+    static Int getPUHeight(Int d, Int PUIdx, PartSize partSize);
+    static Int getXOffSetInPU(Int d, Int PUIdx, PartSize partSize);
+    static Int getYOffSetInPU(Int d, Int PUIdx, PartSize partSize);
+    
     static Void incModeCount(UInt mode, UInt d);
     static Void incPUCount(PartSize part, UInt d);
     

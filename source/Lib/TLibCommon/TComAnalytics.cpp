@@ -154,12 +154,29 @@ Void TComAnalytics::setCurrDepth(UInt d){
 
 Void TComAnalytics::analyze(){
     Int n_PU = calcPUNumber(currCU->getPartitionSize(currPartIdx));
+    Int puX, puY, puW, puH;
+    Int n_PURow = 64/4;
+    Int d = currCU->getDepth(currPartIdx);
+    
+    PartSize partSize = currCU->getPartitionSize(currPartIdx);
     
     for(int puIdx = 0; puIdx < n_PU; puIdx++){
+        puW = getPUWidth(d,puIdx, partSize);
+        puH = getPUHeight(d,puIdx, partSize);
+
+        UInt partIdx = g_auiZscanToRaster[currPartIdx];
+
+        puX = currCU->getCUPelX() + (4*(partIdx % n_PURow));
+        puX += getXOffSetInPU(d, puIdx, partSize);
+
+        puY = currCU->getCUPelY() + (4*floor(partIdx/n_PURow));
+        puY += getYOffSetInPU(d, puIdx, partSize);
+
         if(EN_OUTPUT_VIDEO)
-            TComVideoStats::printStatsInPics(currCU,currPartIdx,currMode,puIdx ,0,0);
-        
+            TComVideoStats::printStatsInPics(puX, puY, puW, puH, currMode ,0,0);
+
     }
+    
     incPUCount(currCU->getPartitionSize(currPartIdx), currDepth);
     incModeCount(currMode, currDepth);
 }
@@ -235,5 +252,70 @@ Int TComAnalytics::calcPUNumber(PartSize s){
         case SIZE_nRx2N:
         case SIZE_nLx2N: return 2;
         default: return 4;
+    }
+}
+Int TComAnalytics::getPUWidth(Int d, Int PUIdx, PartSize partSize){
+    Int base_w = 64 >> d;
+    switch(partSize){
+        case SIZE_Nx2N:
+            return base_w >> 1;
+        case SIZE_NxN:
+            return base_w >> 1;
+        case SIZE_nLx2N:
+            return ((PUIdx == 0) ? (base_w >> 2) : (base_w - (base_w >> 2)));
+        case SIZE_nRx2N:
+            return ((PUIdx == 0) ? (base_w - (base_w >> 2)) : (base_w >> 2));
+        default:
+            return base_w;
+    }
+}
+
+Int TComAnalytics::getPUHeight(Int d, Int PUIdx, PartSize partSize){
+    Int base_h = 64 >> d;
+    switch(partSize){
+        case SIZE_2NxN:
+            return base_h >> 1;
+        case SIZE_NxN:
+            return base_h >> 1;
+        case SIZE_2NxnU:
+            return ((PUIdx == 0) ? (base_h >> 2) : (base_h - (base_h >> 2)));
+        case SIZE_2NxnD:
+            return ((PUIdx == 0) ? (base_h - (base_h >> 2)) : (base_h >> 2));
+        default:
+            return base_h;
+    }
+}
+
+Int TComAnalytics::getXOffSetInPU(Int d, Int PUIdx, PartSize partSize){
+    Int base_w = 64 >> d;
+    
+    switch(partSize){
+        case SIZE_Nx2N:
+            return ((PUIdx == 0) ? 0 : (base_w >> 1));
+        case SIZE_NxN:
+            return ((PUIdx == 0 or PUIdx == 2) ? 0 : (base_w >> 1));
+        case SIZE_nLx2N:
+            return ((PUIdx == 0) ? 0 : (base_w >> 2 ));
+        case SIZE_nRx2N:
+            return ((PUIdx == 0) ? 0: (base_w - (base_w >> 2)));
+        default:
+            return 0;
+    }
+}
+
+Int TComAnalytics::getYOffSetInPU(Int d, Int PUIdx, PartSize partSize){
+    Int base_h = 64 >> d;
+    
+    switch(partSize){
+        case SIZE_2NxN:
+            return ((PUIdx == 0) ? 0 : (base_h >> 1));
+        case SIZE_NxN:
+            return ((PUIdx == 0 or PUIdx == 1) ? 0 : (base_h >> 1));
+        case SIZE_2NxnU:
+            return ((PUIdx == 0) ? 0 : (base_h >> 2 ));
+        case SIZE_2NxnD:
+            return ((PUIdx == 0) ? 0: (base_h - (base_h >> 2)));
+        default:
+            return 0;
     }
 }

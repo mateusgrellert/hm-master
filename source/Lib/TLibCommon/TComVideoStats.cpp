@@ -92,22 +92,8 @@ Void TComVideoStats::writeStatsVideo(){
     }    
 }
 
-Void TComVideoStats::printStatsInPics(TComDataCU*& cu, UInt partIdx, UInt predMode, Int puIdx, Int mvHor, Int mvVer){
-    Int puX, puY, puW, puH;
-    Int n_PURow = 64/4;
-    Int d = cu->getDepth(partIdx);
+Void TComVideoStats::printStatsInPics(UInt puX, UInt puY, UInt puW, UInt puH, UInt predMode, Int mvHor, Int mvVer){
     
-    PartSize partSize = cu->getPartitionSize(partIdx);
-    puW = getPUWidth(d,puIdx, partSize);
-    puH = getPUHeight(d,puIdx, partSize);
-    
-    partIdx = g_auiZscanToRaster[partIdx];
-   
-    puX = cu->getCUPelX() + (4*(partIdx % n_PURow));
-    puX += getXOffSetInPU(d, puIdx, partSize);
-    
-    puY = cu->getCUPelY() + (4*floor(partIdx/n_PURow));
-    puY += getYOffSetInPU(d, puIdx, partSize);
     
     for(int i = puY; i < puY + puH -1; i++)
         lumaPic[i][puX + puW -1] = 0;
@@ -124,68 +110,3 @@ Void TComVideoStats::closeYUV(){
     rawYUV.close();
 }
 
-Int TComVideoStats::getPUWidth(Int d, Int PUIdx, PartSize partSize){
-    Int base_w = 64 >> d;
-    switch(partSize){
-        case SIZE_Nx2N:
-            return base_w >> 1;
-        case SIZE_NxN:
-            return base_w >> 1;
-        case SIZE_nLx2N:
-            return ((PUIdx == 0) ? (base_w >> 2) : (base_w - (base_w >> 2)));
-        case SIZE_nRx2N:
-            return ((PUIdx == 0) ? (base_w - (base_w >> 2)) : (base_w >> 2));
-        default:
-            return base_w;
-    }
-}
-
-Int TComVideoStats::getPUHeight(Int d, Int PUIdx, PartSize partSize){
-    Int base_h = 64 >> d;
-    switch(partSize){
-        case SIZE_2NxN:
-            return base_h >> 1;
-        case SIZE_NxN:
-            return base_h >> 1;
-        case SIZE_2NxnU:
-            return ((PUIdx == 0) ? (base_h >> 2) : (base_h - (base_h >> 2)));
-        case SIZE_2NxnD:
-            return ((PUIdx == 0) ? (base_h - (base_h >> 2)) : (base_h >> 2));
-        default:
-            return base_h;
-    }
-}
-
-Int TComVideoStats::getXOffSetInPU(Int d, Int PUIdx, PartSize partSize){
-    Int base_w = 64 >> d;
-    
-    switch(partSize){
-        case SIZE_Nx2N:
-            return ((PUIdx == 0) ? 0 : (base_w >> 1));
-        case SIZE_NxN:
-            return ((PUIdx == 0 or PUIdx == 2) ? 0 : (base_w >> 1));
-        case SIZE_nLx2N:
-            return ((PUIdx == 0) ? 0 : (base_w >> 2 ));
-        case SIZE_nRx2N:
-            return ((PUIdx == 0) ? 0: (base_w - (base_w >> 2)));
-        default:
-            return 0;
-    }
-}
-
-Int TComVideoStats::getYOffSetInPU(Int d, Int PUIdx, PartSize partSize){
-    Int base_h = 64 >> d;
-    
-    switch(partSize){
-        case SIZE_2NxN:
-            return ((PUIdx == 0) ? 0 : (base_h >> 1));
-        case SIZE_NxN:
-            return ((PUIdx == 0 or PUIdx == 1) ? 0 : (base_h >> 1));
-        case SIZE_2NxnU:
-            return ((PUIdx == 0) ? 0 : (base_h >> 2 ));
-        case SIZE_2NxnD:
-            return ((PUIdx == 0) ? 0: (base_h - (base_h >> 2)));
-        default:
-            return 0;
-    }
-}
