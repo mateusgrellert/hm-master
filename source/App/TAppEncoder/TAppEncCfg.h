@@ -39,6 +39,7 @@
 #define __TAPPENCCFG__
 
 #include "TLibCommon/CommonDef.h"
+#include "TLibCommon/TComComplexityManagement.h"
 
 #include "TLibEncoder/TEncCfg.h"
 #include <sstream>
@@ -111,7 +112,11 @@ protected:
 
   Int       m_cbQpOffset;                                     ///< Chroma Cb QP Offset (0:default) 
   Int       m_crQpOffset;                                     ///< Chroma Cr QP Offset (0:default)
-
+#if EN_COMPLEXITY_MANAGING
+  UInt      m_uiProcFreq;
+  Double    m_dProcAvail;      
+  UInt      m_uiFPS;
+#endif
 #if ADAPTIVE_QP_SELECTION
   Bool      m_bUseAdaptQpSelect;
 #endif

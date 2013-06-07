@@ -39,6 +39,7 @@
 #include "TLibCommon/TComRom.h"
 #include "TLibCommon/TComMotionInfo.h"
 #include "TEncSearch.h"
+#include "TLibCommon/TComComplexityManagement.h"
 #include <math.h>
 
 //! \ingroup TLibEncoder
@@ -4156,6 +4157,12 @@ Void TEncSearch::xMotionEstimation( TComDataCU* pcCU, TComYuv* pcYuvOrg, Int iPa
   TComYuv*      pcYuv = pcYuvOrg;
   m_iSearchRange = m_aaiAdaptSR[eRefPicList][iRefIdxPred];
   
+#if EN_COMPLEXITY_MANAGING
+  if(TComComplexityBudgeter::isConstrained()){
+    m_iSearchRange = TComComplexityBudgeter::searchRange;
+  }
+#endif
+  
   Int           iSrchRng      = ( bBi ? m_bipredSearchRange : m_iSearchRange );
   TComPattern*  pcPatternKey  = pcCU->getPattern        ();
   
@@ -4256,6 +4263,17 @@ Void TEncSearch::xPatternSearch( TComPattern* pcPatternKey, Pel* piRefY, Int iRe
   Int   iSrchRngHorRight  = pcMvSrchRngRB->getHor();
   Int   iSrchRngVerTop    = pcMvSrchRngLT->getVer();
   Int   iSrchRngVerBottom = pcMvSrchRngRB->getVer();
+  
+#if EN_COMPLEXITY_MANAGING
+  if(abs(iSrchRngHorLeft) > TComComplexityBudgeter::searchRange)
+      iSrchRngHorLeft = -TComComplexityBudgeter::searchRange;
+  if(iSrchRngHorRight > TComComplexityBudgeter::searchRange)
+      iSrchRngHorRight = TComComplexityBudgeter::searchRange;
+  if(abs(iSrchRngVerTop) > TComComplexityBudgeter::searchRange)
+      iSrchRngVerTop = -TComComplexityBudgeter::searchRange;
+    if(iSrchRngVerBottom > TComComplexityBudgeter::searchRange)
+      iSrchRngVerBottom = TComComplexityBudgeter::searchRange;
+#endif
   
   UInt  uiSad;
   UInt  uiSadBest         = MAX_UINT;

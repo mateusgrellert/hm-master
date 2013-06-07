@@ -137,7 +137,14 @@ Void TAppEncTop::xInitLibCfg()
   m_cTEncTop.setFastSearch                   ( m_iFastSearch  );
   m_cTEncTop.setSearchRange                  ( m_iSearchRange );
   m_cTEncTop.setBipredSearchRange            ( m_bipredSearchRange );
-
+  
+  //===== Complexity Management =======
+#if EN_COMPLEXITY_MANAGING
+  TComComplexityController::setProcFreq       (m_uiProcFreq);
+  TComComplexityController::setProcAvail      (m_dProcAvail);
+  TComComplexityController::setFPS       (m_uiFPS);
+  
+#endif
   //====== Quality control ========
   m_cTEncTop.setMaxDeltaQP                   ( m_iMaxDeltaQP  );
   m_cTEncTop.setMaxCuDQPDepth                ( m_iMaxCuDQPDepth  );

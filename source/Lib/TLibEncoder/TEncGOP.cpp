@@ -48,6 +48,7 @@
 #include "NALwrite.h"
 #include "TLibCommon/TComAnalytics.h"
 #include "TLibCommon/TComVideoStats.h"
+#include "TLibCommon/TComComplexityManagement.h"
 #include <time.h>
 #include <math.h>
 
@@ -924,6 +925,36 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
       pcSlice->setNextSlice       ( false );
       pcSlice->setNextSliceSegment( false );
       assert(pcPic->getNumAllocatedSlice() == startCUAddrSliceIdx);
+      
+#if EN_COMPLEXITY_MANAGING
+
+      TComComplexityBudgeter::setPoc(pcPic->getPOC());
+      if(pcPic->getPOC() == 0)
+        TComComplexityBudgeter::nEncoded = 0;
+      else
+        TComComplexityBudgeter::nEncoded += 1;
+
+      if(pcSlice->isIntra())
+            TComComplexityController::init(TComComplexityBudgeter::nEncoded);
+      else if(TComComplexityBudgeter::isConstrained()){
+          Double pidOut = TComComplexityController::calcPID(TComComplexityBudgeter::nEncoded);
+          
+          //if(TComComplexityBudgeter::isConstrained()){
+              TComComplexityBudgeter::calcDominantDirection();
+              TComComplexityBudgeter::setFrameBudget(pidOut, m_pcCfg->getGOPEntry(pcPic->getPOC()).m_QPOffset);
+              TComComplexityBudgeter::distributeBudget();
+         // }
+      }
+#else
+      {
+          TComComplexityController::openPidFile();
+          TComComplexityController::pidFile << TComComplexityController::calcAchievedComp() << endl;
+      }
+#endif
+
+#if EN_ANALYTICS
+          TComAnalytics::resetStats();
+#endif    
       m_pcSliceEncoder->precompressSlice( pcPic );
       m_pcSliceEncoder->compressSlice   ( pcPic );
 
@@ -1459,9 +1490,7 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
   TComVideoStats::loadPics();
 #endif
           m_pcSliceEncoder->encodeSlice(pcPic, pcSubstreamsOut);
-#if EN_ANALYTICS
-          TComAnalytics::resetStats();
-#endif
+
 
           {
             // Construct the final bitstream by flushing and concatenating substreams.

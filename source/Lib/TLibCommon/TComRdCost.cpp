@@ -41,6 +41,7 @@
 #include "TComRdCost.h"
 #include "MyTypedef.h"
 #include "TComAnalytics.h"
+#include "TComComplexityManagement.h"
 
 //! \ingroup TLibCommon
 //! \{
@@ -337,6 +338,10 @@ Void TComRdCost::setDistParam( TComPattern* pcPatternKey, Pel* piRefY, Int iRefS
 Void TComRdCost::setDistParam( TComPattern* pcPatternKey, Pel* piRefY, Int iRefStride, Int iStep, DistParam& rcDistParam, Bool bHADME )
 #endif
 {
+    
+#if EN_COMPLEXITY_MANAGING
+    bHADME = TComComplexityBudgeter::hadME;
+#endif
   // set Original & Curr Pointer / Stride
   rcDistParam.pOrg = pcPatternKey->getROIY();
   rcDistParam.pCur = piRefY;

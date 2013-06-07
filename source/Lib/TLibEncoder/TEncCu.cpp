@@ -40,6 +40,7 @@
 #include "TEncCu.h"
 #include "TEncAnalyze.h"
 #include "TLibCommon/TComAnalytics.h"
+#include "TLibCommon/TComComplexityManagement.h"
 
 #include <cmath>
 #include <algorithm>
@@ -571,6 +572,9 @@ Void TEncCu::xCompressCU( TComDataCU*& rpcBestCU, TComDataCU*& rpcTempCU, UInt u
           }
 
 #if 1
+#if EN_COMPLEXITY_MANAGING
+        if(TComComplexityBudgeter::testAMP){
+#endif
           //! Try AMP (SIZE_2NxnU, SIZE_2NxnD, SIZE_nLx2N, SIZE_nRx2N)
           if( pcPic->getSlice(0)->getSPS()->getAMPAcc(uiDepth) )
           {
@@ -681,7 +685,10 @@ Void TEncCu::xCompressCU( TComDataCU*& rpcBestCU, TComDataCU*& rpcTempCU, UInt u
             rpcTempCU->initEstData( uiDepth, iQP );
 
 #endif
-          }    
+          }
+#if EN_COMPLEXITY_MANAGING
+        }
+#endif
 #endif
         }
 
@@ -824,7 +831,11 @@ Void TEncCu::xCompressCU( TComDataCU*& rpcBestCU, TComDataCU*& rpcTempCU, UInt u
     rpcTempCU->initEstData( uiDepth, iQP );
 
     // further split
+#if EN_COMPLEXITY_MANAGING
+     if( bSubBranch && bTrySplitDQP && uiDepth < g_uiMaxCUDepth - g_uiAddCUDepth && (uiDepth < TComComplexityBudgeter::maxCUDepth || bBoundary))
+#else
     if( bSubBranch && bTrySplitDQP && uiDepth < g_uiMaxCUDepth - g_uiAddCUDepth )
+#endif
     {
       UChar       uhNextDepth         = uiDepth+1;
       TComDataCU* pcSubBestPartCU     = m_ppcBestCU[uhNextDepth];
@@ -1095,6 +1106,13 @@ Void TEncCu::xEncodeCU( TComDataCU* pcCU, UInt uiAbsPartIdx, UInt uiDepth )
 {
   TComPic* pcPic = pcCU->getPic();
   
+#if EN_COMPLEXITY_MANAGING
+  if(TComComplexityBudgeter::isConstrained())
+    TComComplexityBudgeter::updateConfig(pcCU);
+  else
+    TComComplexityBudgeter::resetConfig(pcCU); //
+#endif
+  
   Bool bBoundary = false;
   UInt uiLPelX   = pcCU->getCUPelX() + g_auiRasterToPelX[ g_auiZscanToRaster[uiAbsPartIdx] ];
   UInt uiRPelX   = uiLPelX + (g_uiMaxCUWidth>>uiDepth)  - 1;
@@ -1144,7 +1162,9 @@ Void TEncCu::xEncodeCU( TComDataCU* pcCU, UInt uiAbsPartIdx, UInt uiDepth )
     return;
   }
   
-
+#if EN_COMPLEXITY_MANAGING
+    TComComplexityBudgeter::setDepthHistory(pcCU, uiAbsPartIdx);
+#endif
   
   if( (g_uiMaxCUWidth>>uiDepth) >= pcCU->getSlice()->getPPS()->getMinCuDQPSize() && pcCU->getSlice()->getPPS()->getUseDQP())
   {

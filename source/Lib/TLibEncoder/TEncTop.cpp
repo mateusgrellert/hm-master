@@ -41,6 +41,7 @@
 #if FAST_BIT_EST
 #include "TLibCommon/ContextModel.h"
 #include "TLibCommon/TComAnalytics.h"
+#include "TLibCommon/TComComplexityManagement.h"
 #endif
 
 //! \ingroup TLibEncoder
@@ -352,6 +353,7 @@ Void TEncTop::encode(Bool flush, TComPicYuv* pcPicYuvOrg, TComList<TComPicYuv*>&
     TComAnalytics::init();
 #endif
     
+    
   if (pcPicYuvOrg) {
     // get original YUV
     TComPic* pcPicCurr = NULL;
@@ -377,7 +379,17 @@ Void TEncTop::encode(Bool flush, TComPicYuv* pcPicYuvOrg, TComList<TComPicYuv*>&
     m_cRateCtrl.initRCGOP( m_iNumPicRcvd );
   }
 #endif
-
+    
+#if EN_COMPLEXITY_MANAGING
+  
+#ifndef EN_ANALYTICS
+#define EN_ANALYTICS
+#endif
+  if(m_uiNumAllPicCoded == 0){
+    TComComplexityBudgeter::init(pcPicYuvOrg->getWidth(), pcPicYuvOrg->getHeight(), m_iGOPSize, m_uiIntraPeriod);
+  }
+#endif
+    
   // compress GOP
   m_cGOPEncoder.compressGOP(m_iPOCLast, m_iNumPicRcvd, m_cListPic, rcListPicYuvRecOut, accessUnitsOut);
 

@@ -40,6 +40,7 @@
 #include <cstring>
 #include <string>
 #include "TLibCommon/TComRom.h"
+#include "TLibCommon/TComComplexityManagement.h"
 #include "TAppEncCfg.h"
 
 static istream& operator>>(istream &, Level::Name &);
@@ -340,7 +341,13 @@ Bool TAppEncCfg::parseCfg( Int argc, Char* argv[] )
   ("BipredSearchRange",       m_bipredSearchRange,          4, "Motion search range for bipred refinement")
   ("HadamardME",              m_bUseHADME,               true, "Hadamard ME for fractional-pel")
   ("ASR",                     m_bUseASR,                false, "Adaptive motion search range")
-
+  
+#if EN_COMPLEXITY_MANAGING
+  ("ProcFrequency",           m_uiProcFreq,             8000u, "Processor Frequency in MHz")
+  ("ProcAvailability",        m_dProcAvail,     (double)  0.6, "Processor availability from 0 to 1")
+  ("TargetFPS",               m_uiFPS,                     1u, "target FPS")
+#endif
+  
   // Mode decision parameters
   ("LambdaModifier0,-LM0", m_adLambdaModifier[ 0 ], ( Double )1.0, "Lambda modifier for temporal layer 0")
   ("LambdaModifier1,-LM1", m_adLambdaModifier[ 1 ], ( Double )1.0, "Lambda modifier for temporal layer 1")
@@ -1554,6 +1561,12 @@ Void TAppEncCfg::xPrintParameter()
   printf("QP adaptation                : %d (range=%d)\n", m_bUseAdaptiveQP, (m_bUseAdaptiveQP ? m_iQPAdaptationRange : 0) );
   printf("GOP size                     : %d\n", m_iGOPSize );
   printf("Internal bit depth           : (Y:%d, C:%d)\n", m_internalBitDepthY, m_internalBitDepthC );
+  
+#if EN_COMPLEXITY_MANAGING
+  printf("\nProcessor Frequency (Mhz)    : %d\n", m_uiProcFreq);
+  printf("Processor Availability       : %f\n", m_dProcAvail);
+  printf("Target FPS                   : %d\n", m_uiFPS);
+#endif
   printf("PCM sample bit depth         : (Y:%d, C:%d)\n", g_uiPCMBitDepthLuma, g_uiPCMBitDepthChroma );
 #if RATE_CONTROL_LAMBDA_DOMAIN
   printf("RateControl                  : %d\n", m_RCEnableRateControl );
