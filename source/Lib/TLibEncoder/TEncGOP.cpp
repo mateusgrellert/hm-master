@@ -955,6 +955,11 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
 #if EN_ANALYTICS
           TComAnalytics::resetStats();
 #endif    
+          
+          
+#if EN_OUTPUT_VIDEO
+  TComVideoStats::loadPics();
+#endif
       m_pcSliceEncoder->precompressSlice( pcPic );
       m_pcSliceEncoder->compressSlice   ( pcPic );
 
@@ -1486,9 +1491,7 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
           pcSlice->setTileOffstForMultES( uiOneBitstreamPerSliceLength );
           pcSlice->setTileLocationCount ( 0 );
 
-#if EN_OUTPUT_VIDEO
-  TComVideoStats::loadPics();
-#endif
+
           m_pcSliceEncoder->encodeSlice(pcPic, pcSubstreamsOut);
 
 
@@ -2331,6 +2334,11 @@ Void TEncGOP::xCalculateAddPSNR( TComPic* pcPic, TComPicYuv* pcPicD, const Acces
 
   printf(" [Y %6.4lf dB    U %6.4lf dB    V %6.4lf dB]", dYPSNR, dUPSNR, dVPSNR );
   printf(" [ET %5.0f ]", dEncTime );
+  
+// TODO: insert here analytics output file data
+#if EN_ANALYTICS
+  TComAnalytics::printRDStats(uibits, dYPSNR, dUPSNR, dVPSNR, dEncTime);
+#endif
   
   for (Int iRefList = 0; iRefList < 2; iRefList++)
   {

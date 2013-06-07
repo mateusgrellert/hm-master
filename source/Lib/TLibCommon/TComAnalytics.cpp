@@ -39,6 +39,7 @@ Double TComAnalytics::modeCount[MAX_CU_DEPTH][3];
 Double TComAnalytics::totalPUCount;
 
 std::ofstream TComAnalytics::outFile;
+std::ofstream TComAnalytics::RDTimeFile;
 
 /*! \brief Analytics class initializer
  */
@@ -123,6 +124,16 @@ Void TComAnalytics::report(){
     
 }
 
+Void TComAnalytics::printRDStats(UInt bits, Double y, Double u, Double v, Double et){
+    if(RDTimeFile == NULL){
+        RDTimeFile.open("RDTime.csv", ofstream::out);
+        RDTimeFile << "Bits;" << "Y;" << "U;" << "V;" << "ET" << endl;
+    }
+    RDTimeFile << bits << ";" << y  << ";" << u << ";" << v << ";" << et << endl;
+   
+}
+
+
 Void TComAnalytics::setCU(TComDataCU*& cu, UInt partIdx){
     currCU = cu;
     currPartIdx = partIdx;
@@ -191,25 +202,25 @@ Void TComAnalytics::incModeCount(UInt mode, UInt d){
 }
 
 Void TComAnalytics::incSadCount(UInt num){
-    sadCount[currDepth][0] += (Double)  num/(4096*1000.0);
-    sadCount[currDepth][1] += (Double)  num/(4096*1000.0);
+    sadCount[currDepth][0] += (Double)  num/(4096*1000000.0);
+    sadCount[currDepth][1] += (Double)  num/(4096*1000000.0);
 }
 
 
 Void TComAnalytics::incSseCount(UInt num){
-    sseCount[currDepth][0] += (Double) num/(4096*1000.0);
-    sseCount[currDepth][1] += (Double) num/(4096*1000.0);
+    sseCount[currDepth][0] += (Double) num/(4096*1000000.0);
+    sseCount[currDepth][1] += (Double) num/(4096*1000000.0);
 }
 
 Void TComAnalytics::incSatdCount(UInt num){
-    satdCount[currDepth][0] += (Double) num/(4096*1000.0);
-    satdCount[currDepth][1] += (Double) num/(4096*1000.0);
+    satdCount[currDepth][0] += (Double) num/(4096*1000000.0);
+    satdCount[currDepth][1] += (Double) num/(4096*1000000.0);
 }
 
 
 Void TComAnalytics::incTransformsCount(UInt w, UInt h){
-    transfCount[currDepth][0] += (Double) (w*h)/(4096*1000.0);
-    transfCount[currDepth][1] += (Double) (w*h)/(4096*1000.0);
+    transfCount[currDepth][0] += (Double) (w*h)/(4096*1000000.0);
+    transfCount[currDepth][1] += (Double) (w*h)/(4096*1000000.0);
 }
 
 Void TComAnalytics::incAdds(UInt num){

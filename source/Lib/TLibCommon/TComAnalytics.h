@@ -36,6 +36,7 @@ public:
     static Double modeCount[MAX_CU_DEPTH][3];
     static Double totalPUCount;
     static std::ofstream outFile;
+    static std::ofstream RDTimeFile;
 
 
 
@@ -70,6 +71,7 @@ public:
     static Void incDivs(UInt num);
     
     static Void report();
+    static Void printRDStats(UInt bits, Double y, Double u, Double v, Double et);
     static Void resetStats();
     static Void resetStatsTotal();
 

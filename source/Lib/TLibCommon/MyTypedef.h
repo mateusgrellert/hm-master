@@ -11,7 +11,7 @@
 #define EN_ANALYTICS    1     // analytics enabler
 #define EN_TIMING       0     // timing analysis enabler
 #define EN_OUTPUT_VIDEO 1     // enables an output video with CU borders indicated and other cool stuff
-
+#define EN_MODE_IN_CHROMA 1   // enables prediction mode coded in chroma frames (SKIP = blue, INTER = RED, INTRA = GRAY
 
 #include <iostream>
 #include <fstream>

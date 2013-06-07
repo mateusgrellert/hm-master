@@ -46,7 +46,7 @@
 #include <memory.h>
 #include <assert.h>
 #include "TLibCommon/CommonDef.h"
-
+#include "TLibCommon/TComAnalytics.h"
 //! \ingroup TLibEncoder
 //! \{
 
@@ -100,6 +100,14 @@ public:
            getPsnrY() / (Double)getNumPic(),
            getPsnrU() / (Double)getNumPic(),
            getPsnrV() / (Double)getNumPic() );
+    
+#if EN_ANALYTICS
+    if (cDelim == 'a')
+        TComAnalytics::printRDStats(getBits() * dScale, 
+                getPsnrY() / (Double)getNumPic(),
+                getPsnrU() / (Double)getNumPic(), 
+                getPsnrV() / (Double)getNumPic(), -1.0);
+#endif
   }
   
   Void    printSummaryOut ()

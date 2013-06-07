@@ -93,7 +93,15 @@ Void TComVideoStats::writeStatsVideo(){
 }
 
 Void TComVideoStats::printStatsInPics(UInt puX, UInt puY, UInt puW, UInt puH, UInt predMode, Int mvHor, Int mvVer){
-    
+         // PINK: u = 190; v = 220; 
+         // GRAY: u = 128; v = 128;
+         // PURPLE: u = 200; v = 130; 
+         // GREEN: u = 40; v = 40; 
+         // ORANGE: u = 1; v = 230; 
+         // RED: u = 120; v = 240; 
+         //0 - INTER = ORANGE,  1 - INTRA = GREEN, 2-SKIP = GRAY        
+    Char predModeMapB[] = {1,40,128};
+    Char predModeMapR[] = {230,40,128};
     
     for(int i = puY; i < puY + puH -1; i++)
         lumaPic[i][puX + puW -1] = 0;
@@ -103,6 +111,16 @@ Void TComVideoStats::printStatsInPics(UInt puX, UInt puY, UInt puW, UInt puH, UI
     if(predMode == MODE_INTER){
         //TODO printMv
     }
+
+
+#if EN_MODE_IN_CHROMA
+    for(int i = puY/2; i < (puY + puH)/2; i++){
+        for(int j = puX/2; j < (puX + puW)/2; j++){
+            chromaBPic[i][j] = predModeMapB[predMode];
+            chromaRPic[i][j] = predModeMapR[predMode];
+        }
+    }
+#endif 
 }
 
 Void TComVideoStats::closeYUV(){

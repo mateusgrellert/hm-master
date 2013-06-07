@@ -16,7 +16,7 @@ UInt TComComplexityController::nEncoded;
 std::ofstream TComComplexityController::pidFile;
 
 Void TComComplexityController::init(UInt n_encFrames){
-    desiredComp = procFreq/fps; // gives number of cycles available per frame per frame
+    desiredComp = procFreq*procAvail/fps; // gives number of cycles available per frame per frame
     kp = KP;
     ki = KI;
     kd = KD;
@@ -54,7 +54,7 @@ Double TComComplexityController::calcPID(UInt n){
 }
 
 Double TComComplexityController::calcAchievedComp(){
-    Double n_cycles = 0.0;
+    Double n_cycles = 0.0; // in 10^6 cycles
         // REMINDER - opCount is in 10^6
     for(int i = 0; i < g_uiMaxCUDepth; i++){
         n_cycles += TComAnalytics::sadCount[i][0]*CYCLES_SAD;
