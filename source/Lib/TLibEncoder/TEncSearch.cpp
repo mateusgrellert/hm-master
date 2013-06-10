@@ -4820,7 +4820,10 @@ Void TEncSearch::xEstimateResidualQT( TComDataCU* pcCU, UInt uiQuadrant, UInt ui
      bCheckFull = false;
   else
      bCheckFull =  ( uiLog2TrSize <= pcCU->getSlice()->getSPS()->getQuadtreeTULog2MaxSize() );
-
+#if EN_COMPLEXITY_MANAGING
+  if(uiLog2TrSize < 2+ TComComplexityBudgeter::maxTUDepth)
+      bCheckFull = false;
+#endif
   const Bool bCheckSplit  = ( uiLog2TrSize >  pcCU->getQuadtreeTULog2MinSizeInCU(uiAbsPartIdx) );
   
   assert( bCheckFull || bCheckSplit );

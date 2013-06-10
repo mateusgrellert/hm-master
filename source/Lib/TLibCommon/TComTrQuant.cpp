@@ -42,6 +42,7 @@
 #include "TComPic.h"
 #include "ContextTables.h"
 #include "TComAnalytics.h"
+#include "TComComplexityManagement.h"
 
 typedef struct
 {
@@ -838,7 +839,11 @@ void xTrMxN(Int bitDepth, Short *block,Short *coeff, Int iWidth, Int iHeight, UI
   Int shift_2nd = g_aucConvertToBit[iHeight]  + 8;                   // log2(iHeight) + 6
 
   Short tmp[ 64 * 64 ];
-
+  
+#if EN_ANALYTICS
+  TComAnalytics::incTransformsCount(iWidth,iHeight);
+#endif
+  
   if( iWidth == 4 && iHeight == 4)
   {
     if (uiMode != REG_DCT)

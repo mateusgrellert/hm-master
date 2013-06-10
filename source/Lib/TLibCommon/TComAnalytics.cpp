@@ -109,13 +109,14 @@ Void TComAnalytics::report(){
     
     outFile << endl << endl;
     
-    outFile << ";kSAD operations;kSSE operations;kSATD operations;";
+    outFile << ";kSAD operations;kSSE operations;kSATD operations;kTransforms;";
     outFile << "mADD operations;mSUB operations;mMUL operations;" << endl;
     
     for(int i = 0; i < g_uiMaxCUDepth; i++){
-        outFile << i << ";" << sadCount[i][1] << ";";
-        outFile << sseCount[i][1] << ";";
-        outFile << satdCount[i][1] << ";";
+        outFile << i << ";" << sadCount[i][1]*1000.0 << ";";
+        outFile << sseCount[i][1]*1000.0 << ";";
+        outFile << satdCount[i][1]*1000.0 << ";";
+        outFile << transfCount[i][1]*1000.0 << ";";
 
         outFile << addCount[i][1] << ";";
         outFile << subCount[i][1] << ";";
