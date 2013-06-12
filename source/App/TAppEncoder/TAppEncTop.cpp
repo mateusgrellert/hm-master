@@ -443,7 +443,9 @@ Void TAppEncTop::encode()
   xInitLibCfg();
   xCreateLib();
   xInitLib();
-  
+#if EN_ANALYTICS
+    TComAnalytics::init();
+#endif
   // main encoder loop
   Int   iNumEncoded = 0;
   Bool  bEos = false;

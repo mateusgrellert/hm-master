@@ -349,9 +349,7 @@ Void TEncTop::deletePicBuffer()
 Void TEncTop::encode(Bool flush, TComPicYuv* pcPicYuvOrg, TComList<TComPicYuv*>& rcListPicYuvRecOut, std::list<AccessUnit>& accessUnitsOut, Int& iNumEncoded )
 {
     
-#if EN_ANALYTICS
-    TComAnalytics::init();
-#endif
+
     
     
   if (pcPicYuvOrg) {

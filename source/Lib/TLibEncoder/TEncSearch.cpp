@@ -3239,6 +3239,11 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
       
       for ( Int iRefIdxTemp = 0; iRefIdxTemp < pcCU->getSlice()->getNumRefIdx(eRefPicList); iRefIdxTemp++ )
       {
+//#if 0
+#if EN_COMPLEXITY_MANAGING
+          if (TComComplexityBudgeter::isConstrained() and (iRefIdxTemp == TComComplexityBudgeter::maxNumRefPics))
+              break;
+#endif
         uiBitsTemp = uiMbBits[iRefList];
         if ( pcCU->getSlice()->getNumRefIdx(eRefPicList) > 1 )
         {
@@ -3543,6 +3548,13 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
         
         for ( Int iRefIdxTemp = iRefStart; iRefIdxTemp <= iRefEnd; iRefIdxTemp++ )
         {
+            
+//#if 0
+#if EN_COMPLEXITY_MANAGING
+          if (TComComplexityBudgeter::isConstrained() and (iRefIdxTemp == TComComplexityBudgeter::maxNumRefPics))
+              break;
+#endif
+          
           uiBitsTemp = uiMbBits[2] + uiMotBits[1-iRefList];
           if ( pcCU->getSlice()->getNumRefIdx(eRefPicList) > 1 )
           {
@@ -4156,6 +4168,7 @@ Void TEncSearch::xMotionEstimation( TComDataCU* pcCU, TComYuv* pcYuvOrg, Int iPa
   
   TComYuv*      pcYuv = pcYuvOrg;
   m_iSearchRange = m_aaiAdaptSR[eRefPicList][iRefIdxPred];
+  
   
 #if EN_COMPLEXITY_MANAGING
   if(TComComplexityBudgeter::isConstrained()){
@@ -4820,11 +4833,15 @@ Void TEncSearch::xEstimateResidualQT( TComDataCU* pcCU, UInt uiQuadrant, UInt ui
      bCheckFull = false;
   else
      bCheckFull =  ( uiLog2TrSize <= pcCU->getSlice()->getSPS()->getQuadtreeTULog2MaxSize() );
+
+   Bool bCheckSplit  = ( uiLog2TrSize >  pcCU->getQuadtreeTULog2MinSizeInCU(uiAbsPartIdx) );
+  
 #if EN_COMPLEXITY_MANAGING
-  if(uiLog2TrSize < 2+ TComComplexityBudgeter::maxTUDepth)
-      bCheckFull = false;
+  if(uiLog2TrSize < 5 - (TComComplexityBudgeter::maxTUDepth)){
+      bCheckSplit = false;
+      bCheckFull = true;
+  }
 #endif
-  const Bool bCheckSplit  = ( uiLog2TrSize >  pcCU->getQuadtreeTULog2MinSizeInCU(uiAbsPartIdx) );
   
   assert( bCheckFull || bCheckSplit );
   

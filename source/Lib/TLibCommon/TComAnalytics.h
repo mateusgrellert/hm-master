@@ -37,6 +37,7 @@ public:
     static Double totalPUCount;
     static std::ofstream outFile;
     static std::ofstream RDTimeFile;
+    static std::ofstream simpleRDTimeFile;
 
 
 

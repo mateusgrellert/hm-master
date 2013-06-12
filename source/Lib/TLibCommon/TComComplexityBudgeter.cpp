@@ -33,7 +33,7 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
     intraPeriod = intraP;
     maxCUDepth = 4;
     maxTUDepth = 3;
-
+    maxNumRefPics = 4;
     picWidth = w;
     picHeight = h;
     hadME = 1;
@@ -53,7 +53,7 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
             tempHistRow.push_back(make_pair(0, directionVector));
             
             // for config map
-            for(int k = 0; k < 5; k++){
+            for(int k = 0; k < 6; k++){
                 conf.push_back(0);
             }
             tempConfigRow.push_back(conf);
@@ -116,16 +116,18 @@ void TComComplexityBudgeter::updateConfig(TComDataCU*& cu){
 
     maxCUDepth = configMap[x][y][0];
     maxTUDepth = configMap[x][y][1];
-    //maxNumRefPics = configMap[x][y][1];
     searchRange = configMap[x][y][2];
-    testAMP = configMap[x][y][3];
-    hadME = configMap[x][y][4];
+    maxNumRefPics = configMap[x][y][3];
+
+    testAMP = configMap[x][y][4];
+    hadME = configMap[x][y][5];
 }
 
 void TComComplexityBudgeter::resetConfig(TComDataCU*& cu){
     maxCUDepth = 4;
     maxTUDepth = 3;
     searchRange = 64;
+    maxNumRefPics = 4;
     testAMP = 1;
     hadME = 1;
 }
@@ -148,11 +150,11 @@ Void TComComplexityBudgeter::distributeBudget(){
         for(int j = 0; j < history[0].size(); j++){
             if(history[i][j].first == 0 or (estCycleCount > frameBudget)){ //set LOW budget!
                 configMap[i][j][0] = 2; // Max CU Depth
-                configMap[i][j][1] = 1; // Max TU Depth
-               // configMap[i][j][1] = 1; // Max Num Ref Pics
+                configMap[i][j][1] = 0; // Max TU Depth
                 configMap[i][j][2] = 8; // SR
-                configMap[i][j][3] = 0; // AMP
-                configMap[i][j][4] = 0; // Had ME  
+                configMap[i][j][3] = 1; // Max Num Ref Pics
+                configMap[i][j][4] = 0; // AMP
+                configMap[i][j][5] = 0; // Had ME  
                 estCycleCount += estimateCycleCount(history[i][j].first, 0);
                 countLow += 1;
                 countTotal += 1;
@@ -164,8 +166,9 @@ Void TComComplexityBudgeter::distributeBudget(){
                 configMap[i][j][0] = 4; // Max CU Depth
                 configMap[i][j][1] = 3; // Max TU Depth
                 configMap[i][j][2] = 64; // SR
-                configMap[i][j][3] = 1; // AMP
-                configMap[i][j][4] = 1; // Had ME   
+                configMap[i][j][3] = 4; // NumRefPics
+                configMap[i][j][4] = 1; // AMP
+                configMap[i][j][5] = 1; // Had ME   
                 estCycleCount += estimateCycleCount(history[i][j].first, 3);
                 countHigh += 1;
                 countTotal += 1;
@@ -180,20 +183,22 @@ Void TComComplexityBudgeter::distributeBudget(){
             if(history[i][j].first == 1 or history[i][j].first == 2){
                 if(estCycleCount < frameBudget){ // still available - spend some effort
                     configMap[i][j][0] = 3; // Max CU Depth
-                    configMap[i][j][1] = 2; // Max TU Depth
+                    configMap[i][j][1] = 0; // Max TU Depth
                     configMap[i][j][2] = 32; // SR
-                    configMap[i][j][3] = 1; // AMP
-                    configMap[i][j][4] = 1; // HADME
+                    configMap[i][j][3] = 2; // NumRefPics
+                    configMap[i][j][4] = 1; // AMP
+                    configMap[i][j][5] = 1; // HADME
                     estCycleCount += estimateCycleCount(history[i][j].first, 2);  
                     countMediumH += 1;
                     countTotal += 1;
                 }
-                else{                                      // no more available - use low effort
+                else{                    // no more available - use low effort
                     configMap[i][j][0] = 2; // Max CU Depth
-                    configMap[i][j][1] = 1; // Max TU Depth
+                    configMap[i][j][1] = 0; // Max TU Depth
                     configMap[i][j][2] = 16; // SR
-                    configMap[i][j][3] = 1; // AMP
-                    configMap[i][j][4] = 0; // HADME
+                    configMap[i][j][3] = 1; // NumRefPics
+                    configMap[i][j][4] = 1; // AMP
+                    configMap[i][j][5] = 0; // HADME
                     estCycleCount += estimateCycleCount(history[i][j].first, 1);
                     countMediumL += 1;
                     countTotal += 1;
@@ -208,9 +213,10 @@ Void TComComplexityBudgeter::distributeBudget(){
             if(configMap[i][j][0] == 3){ 
                 configMap[i][j][0] = 4; // Max CU Depth
                 configMap[i][j][1] = 3; // Max TU Depth
-                configMap[i][j][2] = 64; // SR
-                configMap[i][j][3] = 1; // AMP
-                configMap[i][j][4] = 1; // HADME
+                configMap[i][j][2] = 64; // SR   
+                configMap[i][j][3] = 4; // NumRefPics
+                configMap[i][j][4] = 1; // AMP
+                configMap[i][j][5] = 1; // HADME
 
                 estCycleCount -= estimateCycleCount(history[i][j].first, 2);
                 estCycleCount += estimateCycleCount(history[i][j].first, 3);
@@ -224,11 +230,11 @@ Void TComComplexityBudgeter::distributeBudget(){
                 if(configMap[i][j][2] == 16){ // means it was med-L
 
                     configMap[i][j][0] = 3; // Max CU Depth
-                    configMap[i][j][1] = 2; // Max TU Depth
+                    configMap[i][j][1] = 0; // Max TU Depth
                     configMap[i][j][2] = 32; // SR
-                    configMap[i][j][3] = 1; // AMP
-                    configMap[i][j][4] = 1; // HADME
-                        
+                    configMap[i][j][3] = 2; // NumRefPics
+                    configMap[i][j][4] = 1; // AMP
+                    configMap[i][j][5] = 1; // HADME
                     estCycleCount += estimateCycleCount(history[i][j].first, 2);
 
                     estCycleCount -= estimateCycleCount(history[i][j].first, 1);
@@ -238,11 +244,12 @@ Void TComComplexityBudgeter::distributeBudget(){
                 }
                 else if(history[i][j].first == 0){
 
-                    configMap[i][j][0] = 3; // Max CU Depth
-                    configMap[i][j][1] = 2; // Max TU Depth
-                    configMap[i][j][2] = 32; // SR
-                    configMap[i][j][3] = 1; // AMP
-                    configMap[i][j][4] = 1; // HADME
+                    configMap[i][j][0] = 2; // Max CU Depth
+                    configMap[i][j][1] = 0; // Max TU Depth
+                    configMap[i][j][2] = 16; // SR
+                    configMap[i][j][3] = 1; // NumRefPics
+                    configMap[i][j][4] = 1; // AMP
+                    configMap[i][j][5] = 0; // HADME
                         
                     estCycleCount += estimateCycleCount(history[i][j].first, 2);
 
@@ -260,11 +267,12 @@ Void TComComplexityBudgeter::distributeBudget(){
             
             // apply med-low config.to high budgeted CUs
             if(history[i][j].first == 3){ 
-                configMap[i][j][0] = 2; // Max CU Depth
-                configMap[i][j][1] = 1; // Max TU Depth
-                configMap[i][j][2] = 16; // SR
-                configMap[i][j][3] = 1; // AMP
-                configMap[i][j][4] = 0; // HADME
+                    configMap[i][j][0] = 2; // Max CU Depth
+                    configMap[i][j][1] = 0; // Max TU Depth
+                    configMap[i][j][2] = 16; // SR
+                    configMap[i][j][3] = 1; // NumRefPics
+                    configMap[i][j][4] = 1; // AMP
+                    configMap[i][j][5] = 0; // HADME
 
                 estCycleCount -= estimateCycleCount(history[i][j].first, 3);
                 estCycleCount += estimateCycleCount(history[i][j].first, 1);
@@ -285,10 +293,11 @@ Void TComComplexityBudgeter::distributeBudget(){
                 }
 
                 configMap[i][j][0] = 2; // Max CU Depth
-                configMap[i][j][1] = 1; // Max TU Depth
+                configMap[i][j][1] = 0; // Max TU Depth
                 configMap[i][j][2] = 8; // SR
-                configMap[i][j][3] = 0; // AMP
-                configMap[i][j][4] = 0; // HADME
+                configMap[i][j][3] = 1; // Max Num Ref Pics
+                configMap[i][j][4] = 0; // AMP
+                configMap[i][j][5] = 0; // Had ME  
                     
                 estCycleCount += estimateCycleCount(history[i][j].first, 0);
 

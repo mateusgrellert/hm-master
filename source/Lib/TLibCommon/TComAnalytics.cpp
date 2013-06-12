@@ -40,6 +40,7 @@ Double TComAnalytics::totalPUCount;
 
 std::ofstream TComAnalytics::outFile;
 std::ofstream TComAnalytics::RDTimeFile;
+std::ofstream TComAnalytics::simpleRDTimeFile;
 
 /*! \brief Analytics class initializer
  */
@@ -49,7 +50,7 @@ Void TComAnalytics::init() {
     currDepth = 0;
     currPartIdx = 0;
     currMode = 0;
-    
+   
     encodingStarted = false; // true if best mv only
     
     totalPUCount = 0.0;
@@ -126,11 +127,16 @@ Void TComAnalytics::report(){
 }
 
 Void TComAnalytics::printRDStats(UInt bits, Double y, Double u, Double v, Double et){
-    if(RDTimeFile == NULL){
+    if(!RDTimeFile.is_open()){
         RDTimeFile.open("RDTime.csv", ofstream::out);
         RDTimeFile << "Bits;" << "Y;" << "U;" << "V;" << "ET" << endl;
     }
     RDTimeFile << bits << ";" << y  << ";" << u << ";" << v << ";" << et << endl;
+    if (et < 0){
+        if(!simpleRDTimeFile.is_open())       
+            simpleRDTimeFile.open("averageRDTime.csv", ofstream::out);
+        simpleRDTimeFile << bits << ";" << y  << ";" << u << ";" << v << ";";
+    }
    
 }
 

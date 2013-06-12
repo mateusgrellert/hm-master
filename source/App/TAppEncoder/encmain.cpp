@@ -92,7 +92,9 @@ int main(int argc, char* argv[])
   printf("\n Total Time: %12.3f sec.\n", dResult);
 #if EN_ANALYTICS
   TComAnalytics::RDTimeFile << ";;;;" << dResult << endl;
+  TComAnalytics::simpleRDTimeFile << dResult << endl;
   TComAnalytics::RDTimeFile.close();
+  TComAnalytics::simpleRDTimeFile.close();
 #endif
   // destroy application encoder class
   cTAppEncTop.destroy();
