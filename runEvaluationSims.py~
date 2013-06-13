@@ -1,4 +1,9 @@
-from sys import os
+from os import system
+
+def wrapResults(path):
+	system("mkdir results_"+path)
+	system("mv ./bin/*csv ./results_"+path)
+
 
 sequence_list = ['PeopleOnStreet','Kimono','BasketballDrive','BlowingBubbles','ChineSpeed']
 
@@ -22,25 +27,31 @@ for sequence in sequence_list:
 
 		# start running each list here -- don't nest loops from this point on
 		for MaxPartitionDepth in MaxPartitionDepth_list:
-			os(execLine+' --MaxPartitionDepth='+MaxPartitionDepth)
-			wrapResults(sequence+"_"+qp+"_"+"maxDepth_"+MaxPartitionDepth)
+			system(execLine+' --MaxPartitionDepth='+MaxPartitionDepth)
+			wrapResults(sequence+"_"+QP+"_"+"maxDepth_"+MaxPartitionDepth)
 
 		for QuadtreeTUMaxDepthInter in QuadtreeTUMaxDepthInter_list:
-			os(execLine+' --QuadtreeTUMaxDepthInter='+QuadtreeTUMaxDepthInter)
-			wrapResults(sequence+"_"+qp+"_"+"maxDepth_"+QuadtreeTUMaxDepthInter)
+			system(execLine+' --QuadtreeTUMaxDepthInter='+QuadtreeTUMaxDepthInter)
+			wrapResults(sequence+"_"+QP+"_"+"TUDepth_"+QuadtreeTUMaxDepthInter)
 
 		for SearchRange in SearchRange_list:
-			os(execLine+' --SearchRange='+SearchRange)
-			wrapResults(sequence+"_"+qp+"_"+"maxDepth_"+MaxPartitionDepth)
+			system(execLine+' --SearchRange='+SearchRange)
+			wrapResults(sequence+"_"+QP+"_"+"SerchRange_"+SearchRange)
 
 		for HadamardME in HadamardME_list:
-			os(execLine+' --HadamardME='+HadamardME)
-			wrapResults(sequence+"_"+qp+"_"+"maxDepth_"+MaxPartitionDepth)
+			system(execLine+' --HadamardME='+HadamardME)
+			wrapResults(sequence+"_"+QP+"_"+"Had_"+HadamardME)
 
 		for AMP in AMP_list:
-			os(execLine+' --AMP='+AMP)
-			wrapResults(sequence+"_"+qp+"_"+"maxDepth_"+MaxPartitionDepth)
+			system(execLine+' --AMP='+AMP)
+			wrapResults(sequence+"_"+QP+"_"+"AMP_"+AMP)
 
 		for RDOQ in RDOQ_list:
-			os(execLine+' --RDOQ='+RDOQ)
-			wrapResults(sequence+"_"+qp+"_"+"maxDepth_"+MaxPartitionDepth)
+			system(execLine+' --RDOQ='+RDOQ)
+			wrapResults(sequence+"_"+QP+"_"+"RDOQ_"+RDOQ)
+
+		system("mkdir QP_"+QP)
+		system("mv -rf results_* ./QP_"+QP)
+
+	system("mkdir "+ sequence)
+	system("mv -rf QP_* ./"+sequence)
