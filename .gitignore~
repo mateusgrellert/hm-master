@@ -9,7 +9,6 @@ build/HM_vc8.sln
 build/vc10/
 build/vc9/
 build/vc8/
-!build/linux/lib/
 HM.xcodeproj
 .cproject
 .project

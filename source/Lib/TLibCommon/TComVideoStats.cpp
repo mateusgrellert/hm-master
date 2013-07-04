@@ -31,9 +31,9 @@ Void TComVideoStats::openYUV(){
 
 Void TComVideoStats::loadPics(){
     
-    if(!firstFrame){
-        writeStatsVideo();
-    }
+//    if(!firstFrame){
+//        writeStatsVideo();
+//    }
 
     for(int i = 0; i < videoHeight; i++){
         char *c = new char;
