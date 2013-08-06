@@ -15,4 +15,6 @@ HM.xcodeproj
 .project
 .settings
 .svn
+hsv/*cfg
+hsv/*pyc
 *.*~ #utilizado para ignorar arquivos temporários
