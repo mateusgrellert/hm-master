@@ -36,8 +36,9 @@ public:
     static Double modeCount[MAX_CU_DEPTH][3];
     static Double totalPUCount;
     static std::ofstream outFile;
+    static std::ofstream hsvFile;
     static std::ofstream RDTimeFile;
-    static std::ofstream simpleRDTimeFile;
+    static std::ofstream avgRDTimeFile;
 
 
 
@@ -45,6 +46,7 @@ public:
     TComAnalytics();
     static Void init();
     static Void setCU (TComDataCU *&cu, UInt partIdx);
+    static Void setPOC (UInt poc);
     static Void setResolution(Int w, Int h) {frameWidth = w; frameHeight = h;};
     static Void setFrameCount(Int n) {frameNum = n;};
     static Void setCurrDepth(UInt d);

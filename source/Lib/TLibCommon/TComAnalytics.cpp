@@ -6,7 +6,6 @@
  */
 
 #include "TComAnalytics.h"
-#include "TComVideoStats.h"
 #include "TLibCommon/TypeDef.h"
 
 TComDataCU *TComAnalytics::currCU;
@@ -39,18 +38,19 @@ Double TComAnalytics::modeCount[MAX_CU_DEPTH][3];
 Double TComAnalytics::totalPUCount;
 
 std::ofstream TComAnalytics::outFile;
+std::ofstream TComAnalytics::hsvFile;
 std::ofstream TComAnalytics::RDTimeFile;
-std::ofstream TComAnalytics::simpleRDTimeFile;
+std::ofstream TComAnalytics::avgRDTimeFile;
 
 /*! \brief Analytics class initializer
  */
 Void TComAnalytics::init() {
-   
+
     currCU = NULL;
     currDepth = 0;
     currPartIdx = 0;
     currMode = 0;
-   
+    hsvFile.open("frame_stats.hsv",std::ofstream::out);
     encodingStarted = false; // true if best mv only
     
     totalPUCount = 0.0;
@@ -133,9 +133,9 @@ Void TComAnalytics::printRDStats(UInt bits, Double y, Double u, Double v, Double
     }
     RDTimeFile << bits << ";" << y  << ";" << u << ";" << v << ";" << et << endl;
     if (et < 0){
-        if(!simpleRDTimeFile.is_open())       
-            simpleRDTimeFile.open("averageRDTime.csv", ofstream::out);
-        simpleRDTimeFile << bits << ";" << y  << ";" << u << ";" << v << ";";
+        if(!avgRDTimeFile.is_open())       
+            avgRDTimeFile.open("averageRDTime.csv", ofstream::out);
+        avgRDTimeFile << bits << ";" << y  << ";" << u << ";" << v << ";";
     }
    
 }
@@ -175,6 +175,7 @@ Void TComAnalytics::analyze(){
     Int puX, puY, puW, puH;
     Int n_PURow = 64/4;
     Int d = currCU->getDepth(currPartIdx);
+    string modeStr[] = {"INTER", "INTRA", "SKIP"};
     
     PartSize partSize = currCU->getPartitionSize(currPartIdx);
     
@@ -189,9 +190,7 @@ Void TComAnalytics::analyze(){
 
         puY = currCU->getCUPelY() + (4*floor(partIdx/n_PURow));
         puY += getYOffSetInPU(d, puIdx, partSize);
-
-        if(EN_OUTPUT_VIDEO)
-            TComVideoStats::printStatsInPics(puX, puY, puW, puH, currMode ,0,0);
+        hsvFile << puX << ";" << puY << ";" << puW << ";" << puH << ";" << modeStr[currMode] << endl;
 
     }
     
@@ -336,4 +335,10 @@ Int TComAnalytics::getYOffSetInPU(Int d, Int PUIdx, PartSize partSize){
         default:
             return 0;
     }
+}
+
+Void TComAnalytics::setPOC(UInt poc){
+    if (poc > 0)
+        hsvFile << "EOP" << endl;
+    hsvFile << "POC;" << poc << endl;
 }

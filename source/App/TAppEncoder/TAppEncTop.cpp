@@ -45,7 +45,6 @@
 #include "TAppEncTop.h"
 #include "TLibEncoder/AnnexBwrite.h"
 #include "TLibCommon/TComAnalytics.h"
-#include "TLibCommon/TComVideoStats.h"
 using namespace std;
 
 //! \ingroup TAppEncoder
@@ -388,10 +387,6 @@ Void TAppEncTop::xCreateLib()
   m_cTVideoIOYuvInputFile.open( m_pchInputFile,     false, m_inputBitDepthY, m_inputBitDepthC, m_internalBitDepthY, m_internalBitDepthC );  // read  mode
   m_cTVideoIOYuvInputFile.skipFrames(m_FrameSkip, m_iSourceWidth - m_aiPad[0], m_iSourceHeight - m_aiPad[1]);
 
-#if EN_OUTPUT_VIDEO
-  TComVideoStats::setVideoStats(m_pchInputFile,m_iSourceWidth,m_iSourceHeight);
-  TComVideoStats::openYUV();
-#endif  
   
   if (m_pchReconFile)
     m_cTVideoIOYuvReconFile.open(m_pchReconFile, true, m_outputBitDepthY, m_outputBitDepthC, m_internalBitDepthY, m_internalBitDepthC);  // write mode
@@ -495,10 +490,6 @@ Void TAppEncTop::encode()
 
 #if EN_ANALYTICS
     TComAnalytics::report();
-#endif
-    
-#if EN_OUTPUT_VIDEO
-    TComVideoStats::closeYUV();
 #endif
 
     // delete original YUV buffer
