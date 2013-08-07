@@ -22,7 +22,7 @@ execLine = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg'
 i = 0
 
 for sequence in sequence_list:
-	execLine += ' -c ../cfg/per-sequence/'+sequence+'.cfg'
+	execLine += ' -c ../cfg/per-sequence/'+sequence+'_cropped.cfg'
 	execLine += ' --FramesToBeEncoded=' + nFrames[i]
 	i += 1
 

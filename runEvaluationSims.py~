@@ -2,10 +2,10 @@ from os import system
 
 def wrapResults(path):
 	system("mkdir results_"+path)
-	system("mv ./bin/*csv ./results_"+path)
+	system("mv *csv *hsv ./results_"+path)
 
 
-sequence_list = ['PeopleOnStreet','Kimono','BasketballDrive','BlowingBubbles','ChineSpeed']
+sequence_list = ['PeopleOnStreet','Kimono','BasketballDrive','BlowingBubbles','ChinaSpeed']
 
 nFrames = ['15','15','50','50','50']
 QP_list = ['22','32']
@@ -17,10 +17,14 @@ HadamardME_list = ['0']
 AMP_list = ['0']
 RDOQ_list = ['0']
 
-execLine = './bin/TAppEncoderStatic -c ./cfg/encoder_randomaccess_main.cfg'
+execLine = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg'
+
+i = 0
 
 for sequence in sequence_list:
-	execLine += ' -c ./cfg/per-sequence/'+sequence+'.cfg'
+	execLine += ' -c ../cfg/per-sequence/'+sequence+'.cfg'
+	execLine += ' --FramesToBeEncoded=' + nFrames[i]
+	i += 1
 
 	for QP in QP_list:
 		execLine += ' --QP='+QP
@@ -51,7 +55,8 @@ for sequence in sequence_list:
 			wrapResults(sequence+"_"+QP+"_"+"RDOQ_"+RDOQ)
 
 		system("mkdir QP_"+QP)
-		system("mv -rf results_* ./QP_"+QP)
+		system("mv results_* ./QP_"+QP)
 
 	system("mkdir "+ sequence)
-	system("mv -rf QP_* ./"+sequence)
+	system("mv QP_* ./"+sequence)
+
