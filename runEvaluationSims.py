@@ -22,11 +22,11 @@ execLine = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg'
 i = 0
 
 for sequence in sequence_list:
-    execLine += ' -c ../cfg/per-sequence/'+sequence+'.cfg'
-    execLine += ' --FramesToBeEncdoded=' + nFrames[i]
-    i += 1
-    
-    for QP in QP_list:
+	execLine += ' -c ../cfg/per-sequence/'+sequence+'.cfg'
+	execLine += ' --FramesToBeEncoded=' + nFrames[i]
+	i += 1
+
+	for QP in QP_list:
 		execLine += ' --QP='+QP
 
 		# start running each list here -- don't nest loops from this point on
@@ -59,3 +59,4 @@ for sequence in sequence_list:
 
 	system("mkdir "+ sequence)
 	system("mv QP_* ./"+sequence)
+
