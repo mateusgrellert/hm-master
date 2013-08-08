@@ -23,17 +23,19 @@ class player_display(tk.Frame):
         self.grid(row=0, column=0, sticky='w')
 
     def play_frame(self):
+        self.path = self.parent.video_path
+        self.rep_path = self.parent.report_path
+        self.width = self.parent.disp_w
+        self.height = self.parent.disp_h
+        
         ycbcr = self.getYCbCr()
         
         yuv = ''.join([ycbcr[0][i] + ycbcr[1][i] + ycbcr[2][i] for i in range(0, len(ycbcr[0]))])
-
-
             
         self.frame = Image.fromstring('YCbCr',(self.width,self.height),yuv)
         if self.width > 1280 or self.height > 720:
-            self.width = 832
-            self.height = 480
-            self.frame.resize((self.width, self.height), Image.ANTIALIAS)
+            print self.width
+            self.frame = self.frame.resize((1280, 720), Image.ANTIALIAS)
             
         self.label_image.destroy()
         self.tkpi = ImageTk.PhotoImage(self.frame)

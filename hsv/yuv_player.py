@@ -108,7 +108,7 @@ class yuv_player(tk.Frame):
         self.cfg_path = self.parent.inp_data.input_video
         self.report_path = self.parent.inp_data.input_report
         self.stats_on_yuv = self.parent.inp_data.stats_on_yuv
-        self.disp_stats = (self.parent.inp_data.input_report != None)
+        self.disp_stats = (self.report_path != None and self.report_path != '')
         self.parse_cfg()
         self.config(width=self.total_w,height=self.total_h)
         self.curr_frame = -1

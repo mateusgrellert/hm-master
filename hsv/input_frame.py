@@ -47,8 +47,8 @@ class input_frame(tk.Frame):
         self.update()
 	
     def video_click(self):
-		self.input_video = file_browser.askopenfilename(filetypes=[('CFG File','.cfg')],title='Select the File')
-		self.video_path.set(self.input_video)
+        self.input_video = file_browser.askopenfilename(filetypes=[('CFG File','.cfg')],title='Select the File')
+        self.video_path.set(self.input_video)
     
     def report_click(self):
 		self.input_report = file_browser.askopenfilename(filetypes=[('HSV File','.hsv')],title='Select the File')
