@@ -93,6 +93,7 @@ class yuv_player(tk.Frame):
         
         for line in cfg_lines:
 			line = line.split()
+			if len(line) < 2 : continue
 			if 'InputFile' in line[0]:
 				self.video_path = line[2].strip()
 			if 'FrameSkip' in line[0]:
