@@ -22,7 +22,8 @@ public:
     static vector<Double> weightsVector;
     static Double frameBudget;
     static UInt origGop;
-
+    static Int64 countBudget[4];
+    
     static UInt picWidth;
     static UInt picHeight;
     static UInt intraPeriod;
@@ -34,13 +35,25 @@ public:
     static Int searchRange;
     static Bool hadME;
     static Bool testAMP;
+    static Bool restore_AMVPInfo;
     static ofstream budgetFile;
+    
+    static AMVPInfo *keep_AMVP;
     
     TComComplexityBudgeter();
     
     static Void init(UInt, UInt, UInt, UInt);
     static Bool isConstrained();
+    
+    static Void printBudgetStats();
+    static Void uniformBudget();
+    static Void bottomUpBudget();
+    static Void topDownBudget();
+    static Void knapSackBudget();
+    static Void PCSBudget();
     static Void distributeBudget();
+    static Double updateEstimationAndStats(Double est, UInt old, UInt neww);
+
     static Void setDepthHistory(TComDataCU *&, UInt);
     static Void setVectorHistory(UInt, UInt, UInt);
     static Double calcWeight(UInt);
@@ -50,6 +63,7 @@ public:
     static Void updateConfig(TComDataCU*& cu);
     static Void resetConfig(TComDataCU*& cu);
     static Void setPoc(UInt p) {currPoc = p;};
+    static Void setConfigMap(UInt i, UInt j, UInt prof);
 
     static Double calcMotionAngle(Int x1, Int y1, Int x2, Int y2);
     static Void calcDominantDirection();

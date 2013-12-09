@@ -30,7 +30,8 @@ public:
     
     static Double transfCount[MAX_CU_DEPTH][2];
     static Double transfCountTotal[MAX_CU_DEPTH][2];
-    
+    static UInt cuCount[MAX_CU_DEPTH]; 
+
     static Int mvList[40][25][64][2]; // [0] x*y/(64*64), [1] partIdx/8, [2] mv_h, mv_v
     static Double puCount[MAX_CU_DEPTH][8];
     static Double modeCount[MAX_CU_DEPTH][3];
@@ -61,6 +62,7 @@ public:
     
     static Void incModeCount(UInt mode, UInt d);
     static Void incPUCount(PartSize part, UInt d);
+    static Void incCUCount(UInt d);
     
     static Void incSadCount(UInt num);
     static Void incSseCount(UInt num);

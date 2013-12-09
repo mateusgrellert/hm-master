@@ -142,6 +142,7 @@ Void TAppEncTop::xInitLibCfg()
   TComComplexityController::setProcFreq       (m_uiProcFreq);
   TComComplexityController::setProcAvail      (m_dProcAvail);
   TComComplexityController::setFPS       (m_uiFPS);
+  TComComplexityController::setBudgetAlg (m_uiBudgetAlg);
   
 #endif
   //====== Quality control ========

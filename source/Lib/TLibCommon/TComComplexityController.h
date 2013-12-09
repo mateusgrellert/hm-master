@@ -21,6 +21,7 @@ public:
     static Double procAvail;
     static UInt procFreq;
     static UInt fps;
+    static UInt budgetAlg;
     
     static UInt nEncoded;
     static std::ofstream pidFile;
@@ -33,12 +34,14 @@ public:
     static Double calcAchievedComp();
     static Double calcTotalComp();
     static Double calcPID(UInt);
+    static Double calcSimpleControl(UInt);
     static Double calcZieglerNichols();
     static Void openPidFile();
 
     static Void setProcFreq(UInt f) {procFreq = f;};
     static Void setProcAvail(Double a) {procAvail = a;};
     static Void setFPS(UInt f) {fps = f;};
+    static Void setBudgetAlg(UInt b) {budgetAlg = b;};
 };
 
 #endif	/* TCOMCOMPLEXITYCONTROLLER_H */

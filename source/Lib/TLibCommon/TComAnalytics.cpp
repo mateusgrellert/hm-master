@@ -16,6 +16,8 @@ UInt TComAnalytics::currDepth;
 UInt TComAnalytics::currPartIdx;
 UInt TComAnalytics::currMode;
 
+UInt TComAnalytics::cuCount[MAX_CU_DEPTH]; 
+
 Int TComAnalytics::frameWidth;
 Int TComAnalytics::frameHeight;
 Int TComAnalytics::frameNum;
@@ -68,7 +70,7 @@ Void TComAnalytics::init() {
             transfCount[i][j] = 0.0;
 
          }
-        
+         cuCount[i] = 0;
         for (int j = 0; j < 3; j++){
             modeCount[i][j] = 0.0;
         }
@@ -194,8 +196,12 @@ Void TComAnalytics::analyze(){
 
     }
     
+    incCUCount(currDepth);
     incPUCount(currCU->getPartitionSize(currPartIdx), currDepth);
     incModeCount(currMode, currDepth);
+}
+Void TComAnalytics::incCUCount(UInt d){
+    cuCount[d] ++;
 }
 
 Void TComAnalytics::incPUCount(PartSize part, UInt d){
@@ -256,6 +262,7 @@ Void TComAnalytics::resetStats(){
         mulCount[i][0] = 0.0;
         
         transfCount[i][0] = 0.0;
+        cuCount[i] = 9;
     }
 }
 

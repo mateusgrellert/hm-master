@@ -12,6 +12,7 @@ Double TComComplexityController::nSteps;
 Double TComComplexityController::procAvail;
 UInt TComComplexityController::procFreq;
 UInt TComComplexityController::fps;
+UInt TComComplexityController::budgetAlg;
 UInt TComComplexityController::nEncoded;
 std::ofstream TComComplexityController::pidFile;
 
@@ -51,6 +52,15 @@ Double TComComplexityController::calcPID(UInt n){
     
     return (achievedComp + PIDOutput);
     //return (desiredComp + PIDOutput);
+}
+
+Double TComComplexityController::calcSimpleControl(UInt n){
+        achievedComp = calcTotalComp()/(n*1.0);
+        openPidFile();
+
+        pidFile << achievedComp << ";" << 2*desiredComp - achievedComp << ";" << desiredComp << endl;
+
+        return (2*desiredComp - achievedComp);
 }
 
 Double TComComplexityController::calcAchievedComp(){

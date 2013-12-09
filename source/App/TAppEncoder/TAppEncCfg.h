@@ -116,6 +116,7 @@ protected:
   UInt      m_uiProcFreq;
   Double    m_dProcAvail;      
   UInt      m_uiFPS;
+  UInt      m_uiBudgetAlg;
 #endif
 #if ADAPTIVE_QP_SELECTION
   Bool      m_bUseAdaptQpSelect;

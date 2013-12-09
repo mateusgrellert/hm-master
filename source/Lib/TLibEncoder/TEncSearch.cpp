@@ -3551,8 +3551,12 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
             
 //#if 0
 #if EN_COMPLEXITY_MANAGING
-          if (TComComplexityBudgeter::isConstrained() and (iRefIdxTemp == TComComplexityBudgeter::maxNumRefPics))
+          if (TComComplexityBudgeter::isConstrained() and (iRefIdxTemp == TComComplexityBudgeter::maxNumRefPics)){
+              TComComplexityBudgeter::restore_AMVPInfo = true;
               break;
+          }
+          else TComComplexityBudgeter::restore_AMVPInfo = false;
+              
 #endif
           
           uiBitsTemp = uiMbBits[2] + uiMotBits[1-iRefList];
@@ -3564,7 +3568,13 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
           uiBitsTemp += m_auiMVPIdxCost[aaiMvpIdxBi[iRefList][iRefIdxTemp]][AMVP_MAX_NUM_CANDS];
           // call ME
           xMotionEstimation ( pcCU, pcOrgYuv, iPartIdx, eRefPicList, &cMvPredBi[iRefList][iRefIdxTemp], iRefIdxTemp, cMvTemp[iRefList][iRefIdxTemp], uiBitsTemp, uiCostTemp, true );
+          
           xCopyAMVPInfo(&aacAMVPInfo[iRefList][iRefIdxTemp], pcCU->getCUMvField(eRefPicList)->getAMVPInfo());
+
+#if EN_COMPLEXITY_MANAGING
+          if (TComComplexityBudgeter::isConstrained())
+              TComComplexityBudgeter::keep_AMVP = pcCU->getCUMvField(eRefPicList)->getAMVPInfo();
+#endif
           xCheckBestMVP(pcCU, eRefPicList, cMvTemp[iRefList][iRefIdxTemp], cMvPredBi[iRefList][iRefIdxTemp], aaiMvpIdxBi[iRefList][iRefIdxTemp], uiBitsTemp, uiCostTemp);
 
           if ( uiCostTemp < uiCostBi )
@@ -3594,7 +3604,12 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
         {
           if ( uiCostBi <= uiCost[0] && uiCostBi <= uiCost[1] )
           {
-            xCopyAMVPInfo(&aacAMVPInfo[0][iRefIdxBi[0]], pcCU->getCUMvField(REF_PIC_LIST_0)->getAMVPInfo());
+#if EN_COMPLEXITY_MANAGING
+                if(TComComplexityBudgeter::restore_AMVPInfo)
+                                 xCopyAMVPInfo(&aacAMVPInfo[0][iRefIdxBi[0]], TComComplexityBudgeter::keep_AMVP);
+                else
+#endif
+                                xCopyAMVPInfo(&aacAMVPInfo[0][iRefIdxBi[0]], pcCU->getCUMvField(REF_PIC_LIST_0)->getAMVPInfo());
             xCheckBestMVP(pcCU, REF_PIC_LIST_0, cMvBi[0], cMvPredBi[0][iRefIdxBi[0]], aaiMvpIdxBi[0][iRefIdxBi[0]], uiBits[2], uiCostBi);
             if(!pcCU->getSlice()->getMvdL1ZeroFlag())
             {
@@ -4041,6 +4056,7 @@ Void TEncSearch::xGetBlkBits( PartSize eCUMode, Bool bPSlice, Int iPartIdx, UInt
 
 Void TEncSearch::xCopyAMVPInfo (AMVPInfo* pSrc, AMVPInfo* pDst)
 {
+
   pDst->iN = pSrc->iN;
   for (Int i = 0; i < pSrc->iN; i++)
   {
