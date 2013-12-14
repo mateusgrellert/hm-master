@@ -46,11 +46,12 @@ public:
     static Bool isConstrained();
     
     static Void printBudgetStats();
+    static Void resetBudgetStats();
     static Void uniformBudget();
     static Void bottomUpBudget();
     static Void topDownBudget();
     static Void knapSackBudget();
-    static Void PCSBudget();
+    static Void ICIPBudget();
     static Void distributeBudget();
     static Double updateEstimationAndStats(Double est, UInt old, UInt neww);
 

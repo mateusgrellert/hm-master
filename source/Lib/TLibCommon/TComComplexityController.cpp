@@ -55,12 +55,13 @@ Double TComComplexityController::calcPID(UInt n){
 }
 
 Double TComComplexityController::calcSimpleControl(UInt n){
-        achievedComp = calcTotalComp()/(n*1.0);
+        Double avgComp = calcTotalComp()/((n-1)*1.0);
+        achievedComp = calcAchievedComp();
         openPidFile();
 
-        pidFile << achievedComp << ";" << 2*desiredComp - achievedComp << ";" << desiredComp << endl;
+        pidFile <<desiredComp << ";" << achievedComp << ";" << 2*desiredComp - avgComp  << endl;
 
-        return (2*desiredComp - achievedComp);
+        return (2*desiredComp - avgComp);
 }
 
 Double TComComplexityController::calcAchievedComp(){
@@ -91,7 +92,7 @@ Double TComComplexityController::calcTotalComp(){
 
 Void TComComplexityController::openPidFile(){ 
     if(pidFile == NULL){
-        pidFile.open("pidOut.csv",ofstream::out);
-        pidFile << "achievedComputation;pidOutput;desiredComputation\n";
+        pidFile.open("controlOut.csv",ofstream::out);
+        pidFile << "desiredComputation;achievedComputation;controlOutput\n";
     }
 }

@@ -14,7 +14,7 @@
 #include "TComComplexityBudgeter.h"
 
 
-#define EN_COMPLEXITY_MANAGING 1
+#define EN_COMPLEXITY_MANAGING 0
 #define NUM_RD_FRAMES 2
 
 #define CYCLES_ADD 1
@@ -22,8 +22,8 @@
 #define CYCLES_MULT 4
 
 #define CYCLES_SAD 64
-#define CYCLES_SSE 64
-#define CYCLES_SATD 64
+#define CYCLES_SSE 128
+#define CYCLES_SATD 128
 #define CYCLES_TRANSF 256 // 64x64 transform
 
 
