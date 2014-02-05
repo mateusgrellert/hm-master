@@ -35,11 +35,11 @@ OBJS          	= \
 			$(OBJ_DIR)/ContextModel.o \
 			$(OBJ_DIR)/ContextModel3DBuffer.o \
 			$(OBJ_DIR)/SEI.o \
-			$(OBJ_DIR)/TComAnalytics.o \
 			$(OBJ_DIR)/TComCABACTables.o \
-			$(OBJ_DIR)/TComComplexityBudgeter.o \
-			$(OBJ_DIR)/TComComplexityController.o \
 			$(OBJ_DIR)/TComSampleAdaptiveOffset.o \
+			$(OBJ_DIR)/TComComplexityController.o \
+			$(OBJ_DIR)/TComComplexityBudgeter.o \
+			$(OBJ_DIR)/TComAnalytics.o \
 			$(OBJ_DIR)/TComBitStream.o \
 			$(OBJ_DIR)/TComDataCU.o \
 			$(OBJ_DIR)/TComLoopFilter.o \

@@ -39,7 +39,7 @@
 #define __COMMONDEF__
 
 #include <algorithm>
-
+#include <stdlib.h>
 #if _MSC_VER > 1000
 // disable "signed and unsigned mismatch"
 #pragma warning( disable : 4018 )

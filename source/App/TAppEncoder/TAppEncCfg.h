@@ -115,7 +115,7 @@ protected:
 #if EN_COMPLEXITY_MANAGING
   UInt      m_uiProcFreq;
   Double    m_dProcAvail;      
-  UInt      m_uiFPS;
+  Double      m_uiFPS;
   UInt      m_uiBudgetAlg;
 #endif
 #if ADAPTIVE_QP_SELECTION

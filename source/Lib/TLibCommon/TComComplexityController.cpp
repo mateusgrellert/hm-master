@@ -11,13 +11,13 @@ Double TComComplexityController::kp;
 Double TComComplexityController::nSteps;
 Double TComComplexityController::procAvail;
 UInt TComComplexityController::procFreq;
-UInt TComComplexityController::fps;
+Double TComComplexityController::fps;
 UInt TComComplexityController::budgetAlg;
 UInt TComComplexityController::nEncoded;
 std::ofstream TComComplexityController::pidFile;
 
 Void TComComplexityController::init(UInt n_encFrames){
-    desiredComp = procFreq*procAvail/fps; // gives number of cycles available per frame per frame
+    desiredComp = procFreq*procAvail/(fps); // gives number of cycles available per frame per frame
     kp = KP;
     ki = KI;
     kd = KD;
@@ -34,13 +34,17 @@ Double TComComplexityController::calcPID(UInt n){
     achievedComp = calcAchievedComp();
     
     prevError = error;
-    
+    nEncoded = n;
+
  // resetting desired in order to actually achieve 60% if possible
  //      Double totalComp = calcTotalComp();
-    nEncoded = n;
  //   if(nEncoded <= NUM_RD_FRAMES){
  //       desiredComp = totalComp/(nEncoded-1)*PERCENTAGE_AVAILABLE;
  //   }
+   // if (nEncoded <= 64)
+  //      desiredComp = 50;
+  //  else
+   //     desiredComp = 25;
     
     error = desiredComp - achievedComp;
     
@@ -48,10 +52,18 @@ Double TComComplexityController::calcPID(UInt n){
     
     PIDOutput = kp*error + ki*accumError + kd*(error - prevError);
 
-    pidFile << achievedComp << ";" << achievedComp + PIDOutput << ";" << desiredComp << endl;
+    pidFile << desiredComp << ";" << achievedComp << ";" << achievedComp + PIDOutput << endl;
     
     return (achievedComp + PIDOutput);
     //return (desiredComp + PIDOutput);
+}
+
+Void TComComplexityController::printAchievedComputation(){
+    openPidFile();
+
+    achievedComp = calcAchievedComp();
+    pidFile << desiredComp << ";" << achievedComp << ";" << 0 << endl;
+
 }
 
 Double TComComplexityController::calcSimpleControl(UInt n){
@@ -59,7 +71,7 @@ Double TComComplexityController::calcSimpleControl(UInt n){
         achievedComp = calcAchievedComp();
         openPidFile();
 
-        pidFile <<desiredComp << ";" << achievedComp << ";" << 2*desiredComp - avgComp  << endl;
+        pidFile <<desiredComp << ";" << achievedComp << ";" << (2*desiredComp - avgComp)  << endl;
 
         return (2*desiredComp - avgComp);
 }
@@ -91,7 +103,7 @@ Double TComComplexityController::calcTotalComp(){
 }
 
 Void TComComplexityController::openPidFile(){ 
-    if(pidFile == NULL){
+    if(!pidFile.is_open()){
         pidFile.open("controlOut.csv",ofstream::out);
         pidFile << "desiredComputation;achievedComputation;controlOutput\n";
     }

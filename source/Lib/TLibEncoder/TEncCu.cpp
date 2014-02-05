@@ -41,7 +41,6 @@
 #include "TEncAnalyze.h"
 #include "TLibCommon/TComAnalytics.h"
 #include "TLibCommon/TComComplexityManagement.h"
-
 #include <cmath>
 #include <algorithm>
 using namespace std;
@@ -242,8 +241,8 @@ Void TEncCu::compressCU( TComDataCU*& rpcCU )
   m_temporalSAD      = 0;
 #endif
 
-  // analysis of CU
   xCompressCU( m_ppcBestCU[0], m_ppcTempCU[0], 0 );
+    
 
 #if ADAPTIVE_QP_SELECTION
   if( m_pcEncCfg->getUseAdaptQpSelect() )
@@ -264,8 +263,10 @@ Void TEncCu::encodeCU ( TComDataCU* pcCU )
     setdQPFlag(true);
   }
 
+
   // Encode CU data
   xEncodeCU( pcCU, 0, 0 );
+
 }
 
 // ====================================================================================================================

@@ -719,7 +719,7 @@ Void TEncCavlc::codeSliceHeader         ( TComSlice* pcSlice )
         }
         if (useAltRps)
         {
-          memcpy(&altRps, rps, sizeof(TComReferencePictureSet));
+          memcpy((void*)&altRps, (void*)rps, sizeof(TComReferencePictureSet));
           rps = &altRps;
           for (Int picIdx = 0; picIdx < rps->getNumberOfPictures(); picIdx++)
           {

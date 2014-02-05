@@ -930,7 +930,7 @@ Void TDecCavlc::parseSliceHeader (TComSlice*& rpcSlice, ParameterSetManagerDecod
         {
           uiCode = 0;
         }
-        memcpy(rps,sps->getRPSList()->getReferencePictureSet(uiCode),sizeof(TComReferencePictureSet));
+        memcpy((void*)rps,(void*)sps->getRPSList()->getReferencePictureSet(uiCode),sizeof(TComReferencePictureSet));
       }
       if(sps->getLongTermRefsPresent())
       {

@@ -8,7 +8,7 @@ def wrapResults(path):
 sequence_list = ['PeopleOnStreet','Kimono','BasketballDrive','BlowingBubbles','ChinaSpeed']
 
 nFrames = ['15','15','50','50','50']
-QP_list = ['22','32']
+QP_list = ['22','27','32','37']
 
 MaxPartitionDepth_list = ['1','2','3']
 QuadtreeTUMaxDepthInter_list = ['3','2','1']
@@ -17,12 +17,12 @@ HadamardME_list = ['0']
 AMP_list = ['0']
 RDOQ_list = ['0']
 
-execLine = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg'
+baseLine = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg'
 
 i = 0
 
 for sequence in sequence_list:
-	execLine += ' -c ../cfg/per-sequence/'+sequence+'_cropped.cfg'
+	execLine = baseLine + ' -c ../cfg/per-sequence/'+sequence+'_cropped.cfg'
 	execLine += ' --FramesToBeEncoded=' + nFrames[i]
 	i += 1
 
@@ -30,35 +30,17 @@ for sequence in sequence_list:
 		execLine += ' --QP='+QP
 
 		# start running each list here -- don't nest loops from this point on
-		for MaxPartitionDepth in MaxPartitionDepth_list:
-			print execLine+' --MaxPartitionDepth='+MaxPartitionDepth
-			system(execLine+' --MaxPartitionDepth='+MaxPartitionDepth)
-			wrapResults(sequence+"_"+QP+"_"+"maxDepth_"+MaxPartitionDepth)
+		print execLine+' --SearchRange=32 --AMP=0 --QuadtreeTUMaxDepthInter=1'
+		system(execLine+' --SearchRange=32 --AMP=0 --QuadtreeTUMaxDepthInter=1')
+		wrapResults(sequence+"_"+QP+"_"+"PS1")
 
-		for QuadtreeTUMaxDepthInter in QuadtreeTUMaxDepthInter_list:
-			print execLine+' --QuadtreeTUMaxDepthInter='+QuadtreeTUMaxDepthInter
-			system(execLine+' --QuadtreeTUMaxDepthInter='+QuadtreeTUMaxDepthInter)
-			wrapResults(sequence+"_"+QP+"_"+"TUDepth_"+QuadtreeTUMaxDepthInter)
+		print execLine+' --SearchRange=16 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0'
+		system(execLine+' --SearchRange=16 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0')
+		wrapResults(sequence+"_"+QP+"_"+"PS2")
 
-		for SearchRange in SearchRange_list:
-			print execLine+' --SearchRange='+SearchRange
-			system(execLine+' --SearchRange='+SearchRange)
-			wrapResults(sequence+"_"+QP+"_"+"SerchRange_"+SearchRange)
-
-		for HadamardME in HadamardME_list:
-			print execLine+' --HadamardME='+HadamardME
-			system(execLine+' --HadamardME='+HadamardME)
-			wrapResults(sequence+"_"+QP+"_"+"Had_"+HadamardME)
-
-		for AMP in AMP_list:
-			print execLine+' --AMP='+AMP
-			system(execLine+' --AMP='+AMP)
-			wrapResults(sequence+"_"+QP+"_"+"AMP_"+AMP)
-
-		for RDOQ in RDOQ_list:
-			print execLine+' --RDOQ='+RDOQ
-			system(execLine+' --RDOQ='+RDOQ)
-			wrapResults(sequence+"_"+QP+"_"+"RDOQ_"+RDOQ)
+		print execLine+' --SearchRange=8 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0 --MaxPartitionDepth=2'
+		system(execLine+' --SearchRange=8 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0 --MaxPartitionDepth=2')
+		wrapResults(sequence+"_"+QP+"_"+"PS3")
 
 		system("mkdir QP_"+QP)
 		system("mv results_* ./QP_"+QP)

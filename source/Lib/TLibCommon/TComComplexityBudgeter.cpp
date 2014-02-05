@@ -58,7 +58,7 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
             tempHistRow.push_back(make_pair(-1, directionVector));
             
             // for config map
-            for(int k = 0; k < 6; k++){
+            for(int k = 0; k < 7; k++){
                 conf.push_back(0);
             }
             tempConfigRow.push_back(conf);
@@ -71,10 +71,12 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
 Double TComComplexityBudgeter::calcWeight(UInt t_layer){
 
 
-    Double weights8[] = {1.5,0.5,0.83,0.5,1.16,0.5,0.83,0.5,1.5};
-    Double weights4[] = {1.3,0.9,1.3,0.5};
+    Double weights8[] = {2.6,1.3,0.86,0.65,0.65,0.86,0.65,0.65};
+    Double weights4[] = {0.6,0.9,0.6,1.8};
 
-   // cout << weights[currPoc % (origGop)] << endl;
+    //if (t_layer == 0) return (1+origGop*0.2);
+   // return (1+origGop*0.2)/(t_layer)*1.0;
+    
     if(origGop == 8)
         return weights8[currPoc % (origGop)];
     else
@@ -140,9 +142,9 @@ void TComComplexityBudgeter::resetConfig(TComDataCU*& cu){
 Bool TComComplexityBudgeter::isConstrained(){
 
     if(nEncoded % MANAGE_GOP < NUM_RD_FRAMES)
-        return false;  
-  //  if(nEncoded > 15)
-  //      return false;
+      return false;
+    //if(nEncoded > 40 and nEncoded < 80)
+   //     return false;
     
     return true;
 }
@@ -151,11 +153,11 @@ Void TComComplexityBudgeter::uniformBudget(){
     Int CUConfig;
         Double estCycleCount = 0.0;
 
-    if (estimateCycleCount(3,0) <= frameBudget)
+    if (estimateCycleCount(3,3) <= frameBudget)
         CUConfig = 3;
-    else if (estimateCycleCount(2,0) <= frameBudget)
+    else if (estimateCycleCount(3,2) <= frameBudget)
         CUConfig = 2;
-    else if (estimateCycleCount(1,0) <= frameBudget)
+    else if (estimateCycleCount(3,1) <= frameBudget)
         CUConfig = 1;
     else
         CUConfig = 0;
@@ -303,19 +305,19 @@ Void TComComplexityBudgeter::ICIPBudget(){
                         continue;
                    
             // apply high config.to med-high budgeted CUs
-            if(configMap[i][j][0] == 3){ 
+            if(configMap[i][j][6] == 2){
                 setConfigMap(i,j,3);
                 estCycleCount = updateEstimationAndStats(estCycleCount,2,3);
             }            
             
             // apply med-high config.to med-low and low budgeted CUs
-            if(configMap[i][j][2] == 16 or history[i][j].first == 0){ 
-                if(configMap[i][j][2] == 16){ // means it was med-L
+            if(configMap[i][j][6] ==  0 or configMap[i][j][6] == 1){
+                if(configMap[i][j][6] == 1){ // means it was med-L
                     setConfigMap(i,j,2);
                     estCycleCount = updateEstimationAndStats(estCycleCount,1,2);
 
                 }
-                else if(history[i][j].first == 0){
+                else {
                     setConfigMap(i,j,2);
                     estCycleCount = updateEstimationAndStats(estCycleCount,0,2);
                     
@@ -331,14 +333,14 @@ Void TComComplexityBudgeter::ICIPBudget(){
                   continue;
                    
             // apply med-low config.to high budgeted CUs
-            if(history[i][j].first == 3){ 
+            if(configMap[i][j][6] == 3){
                     setConfigMap(i,j,1);
                     estCycleCount = updateEstimationAndStats(estCycleCount,3,1);
             }            
             
             // apply low config.to med-low and med-high budgeted CUs
-            if(history[i][j].first == 2 or history[i][j].first == 1){ 
-                if(configMap[i][j][0] == 3) // means it was med-H
+            if(configMap[i][j][6] == 2 or configMap[i][j][6] == 1){
+                if(configMap[i][j][6] == 2) // means it was med-H
                     estCycleCount = updateEstimationAndStats(estCycleCount,2,0);
                 else
                     estCycleCount = updateEstimationAndStats(estCycleCount,1,0);
@@ -353,14 +355,14 @@ Void TComComplexityBudgeter::ICIPBudget(){
         }
     }
 
-    
+    //cout << estCycleCount << "\t" << frameBudget << endl;
 }
 
 // conf 0 = low, 1 = medL, 2 = medH, 3 = high
 
 Double TComComplexityBudgeter::updateEstimationAndStats(Double est, UInt old, UInt neww){
     Double nCU = (picHeight*picWidth)/(64.0*64.0);
-    UInt depth_map[] = {1,2,3,3}; //maximum depth allowed in each profile
+    UInt depth_map[] = {1,3,3,3}; //maximum depth allowed in each profile
    
     UInt d_old, d_new;
         
@@ -387,33 +389,38 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt prof){
             configMap[i][j][2] = 64; // SR
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 1; // AMP
-            configMap[i][j][5] = 1; // Had ME 
+            configMap[i][j][5] = 1; // Had ME
+            configMap[i][j][6] = 3;
             break;
         case 2:
             configMap[i][j][0] = 4; // Max CU Depth
-            configMap[i][j][1] = 3; // Max TU Depth
+            configMap[i][j][1] = 1; // Max TU Depth
             configMap[i][j][2] = 32; // SR
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 0; // AMP
-            configMap[i][j][5] = 1; // Had ME  
+            configMap[i][j][5] = 1; // Had ME
+            configMap[i][j][6] = 2;
+
                         break;
 
         case 1:
-            configMap[i][j][0] = 3; // Max CU Depth
+            configMap[i][j][0] = 4; // Max CU Depth
             configMap[i][j][1] = 1; // Max TU Depth
             configMap[i][j][2] = 16; // SR
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 0; // AMP
-            configMap[i][j][5] = 1; // Had ME
+            configMap[i][j][5] = 0; // Had ME
+            configMap[i][j][6] = 1;
                         break;
 
         default:
             configMap[i][j][0] = 2; // Max CU Depth
             configMap[i][j][1] = 1; // Max TU Depth
-            configMap[i][j][2] = 16; // SR
+            configMap[i][j][2] = 8; // SR
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 0; // AMP
-            configMap[i][j][5] = 1; // Had ME  
+            configMap[i][j][5] = 0; // Had ME
+            configMap[i][j][6] = 0;
                         break;
 
     }
@@ -425,13 +432,14 @@ Double TComComplexityBudgeter::estimateCycleCount(UInt d, UInt conf){
     Double factor = 0.0;
     switch (conf){
         case 3: factor = 1.0; break;
-        case 2: factor = 0.6; break;
-        case 1: factor = 0.33; break;
-        case 0: factor = 0.1; break;
+        case 2: factor = 0.7; break;
+        case 1: factor = 0.5; break;
+        case 0: factor = 0.25; break;
         default: factor = 1.0; break;
     }
     
-    for(int i = 0; i <= d; i++){
+    // for(int i = 0; i <= d; i++){
+     for(int i = 0; i < 4; i++){
         count += (TComAnalytics::sadCount[i][0]) * CYCLES_SAD;
         count += (TComAnalytics::sseCount[i][0]) * CYCLES_SSE;
         count += (TComAnalytics::satdCount[i][0]) * CYCLES_SATD;
@@ -480,6 +488,7 @@ Void TComComplexityBudgeter::printBudgetStats(){
 
 Void TComComplexityBudgeter::setFrameBudget(Double budget, UInt t_layer){
     frameBudget = budget*calcWeight(t_layer);
+    //cout << budget << "\t" << calcWeight(t_layer) << endl;
 }
 
 Void TComComplexityBudgeter::setEncodedCount(UInt n){

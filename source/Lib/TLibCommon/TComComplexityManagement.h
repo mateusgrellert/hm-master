@@ -27,7 +27,7 @@
 #define CYCLES_TRANSF 256 // 64x64 transform
 
 
-#define MANAGE_GOP 100
+#define MANAGE_GOP 30
 
 #define KU 0.06
 #define TU 0.4

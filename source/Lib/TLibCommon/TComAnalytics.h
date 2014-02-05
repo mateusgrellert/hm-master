@@ -40,6 +40,7 @@ public:
     static std::ofstream hsvFile;
     static std::ofstream RDTimeFile;
     static std::ofstream avgRDTimeFile;
+    static std::ofstream cuTimingFile;
 
 
 
@@ -78,6 +79,7 @@ public:
     static Void report();
     static Void printRDStats(UInt bits, Double y, Double u, Double v, Double et);
     static Void resetStats();
+    static Void openTimingFile();
     static Void resetStatsTotal();
 
 };

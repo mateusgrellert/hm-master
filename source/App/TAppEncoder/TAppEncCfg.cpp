@@ -343,10 +343,10 @@ Bool TAppEncCfg::parseCfg( Int argc, Char* argv[] )
   ("ASR",                     m_bUseASR,                false, "Adaptive motion search range")
   
 #if EN_COMPLEXITY_MANAGING
-  ("ProcFrequency",           m_uiProcFreq,             8000u, "Processor Frequency in MHz")
-  ("ProcAvailability",        m_dProcAvail,     (double)  0.6, "Processor availability from 0 to 1")
-  ("TargetFPS",               m_uiFPS,                     1u, "target FPS")
-  ("BudgetAlgorithm",         m_uiBudgetAlg,               0u, "Budgeting Algorithm: 0-Uniform,1-Topdown,2-Bottomup,3-Knapsack,4-PCS")
+  ("ProcFrequency",           m_uiProcFreq,             2000u, "Processor Frequency in MHz")
+  ("ProcAvailability",        m_dProcAvail,     (double)  1.0, "Processor availability from 0 to 1")
+  ("TargetFPS",               m_uiFPS,          (double)  23.5, "target FPS")
+  ("BudgetAlgorithm",         m_uiBudgetAlg,               0u, "Budgeting Algorithm: 0-Uniform,1-Topdown,2-Bottomup,3-Knapsack,4-ICIP")
 #endif
   
   // Mode decision parameters
@@ -1566,7 +1566,7 @@ Void TAppEncCfg::xPrintParameter()
 #if EN_COMPLEXITY_MANAGING
   printf("\nProcessor Frequency (Mhz)    : %d\n", m_uiProcFreq);
   printf("Processor Availability       : %f\n", m_dProcAvail);
-  printf("Target FPS                   : %d\n", m_uiFPS);
+  printf("Target FPS                   : %f\n", m_uiFPS);
   printf("Budgeting Algorithm          : %d\n", m_uiBudgetAlg);
 #endif
   printf("PCM sample bit depth         : (Y:%d, C:%d)\n", g_uiPCMBitDepthLuma, g_uiPCMBitDepthChroma );

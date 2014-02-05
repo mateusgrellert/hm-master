@@ -20,7 +20,7 @@ public:
     
     static Double procAvail;
     static UInt procFreq;
-    static UInt fps;
+    static Double fps;
     static UInt budgetAlg;
     
     static UInt nEncoded;
@@ -33,6 +33,7 @@ public:
     static Double getTargetComplexity();
     static Double calcAchievedComp();
     static Double calcTotalComp();
+    static Void printAchievedComputation();
     static Double calcPID(UInt);
     static Double calcSimpleControl(UInt);
     static Double calcZieglerNichols();
@@ -40,7 +41,7 @@ public:
 
     static Void setProcFreq(UInt f) {procFreq = f;};
     static Void setProcAvail(Double a) {procAvail = a;};
-    static Void setFPS(UInt f) {fps = f;};
+    static Void setFPS(Double f) {fps = f;};
     static Void setBudgetAlg(UInt b) {budgetAlg = b;};
 };
 

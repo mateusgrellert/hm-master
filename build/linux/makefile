@@ -46,4 +46,3 @@ clean:
 	$(MAKE) -C app/TAppEncoder      clean MM32=$(M32)
 	$(MAKE) -C utils/annexBbytecount       clean MM32=$(M32)
 	$(MAKE) -C utils/convert_NtoMbit_YCbCr clean MM32=$(M32)
-

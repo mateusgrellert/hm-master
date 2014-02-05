@@ -43,6 +43,7 @@ std::ofstream TComAnalytics::outFile;
 std::ofstream TComAnalytics::hsvFile;
 std::ofstream TComAnalytics::RDTimeFile;
 std::ofstream TComAnalytics::avgRDTimeFile;
+std::ofstream TComAnalytics::cuTimingFile;
 
 /*! \brief Analytics class initializer
  */
@@ -112,14 +113,14 @@ Void TComAnalytics::report(){
     
     outFile << endl << endl;
     
-    outFile << ";kSAD operations;kSSE operations;kSATD operations;kTransforms;";
+    outFile << ";mSAD operations;mSSE operations;mSATD operations;mTransforms;";
     outFile << "mADD operations;mSUB operations;mMUL operations;" << endl;
     
     for(int i = 0; i < g_uiMaxCUDepth; i++){
-        outFile << i << ";" << sadCount[i][1]*1000.0 << ";";
-        outFile << sseCount[i][1]*1000.0 << ";";
-        outFile << satdCount[i][1]*1000.0 << ";";
-        outFile << transfCount[i][1]*1000.0 << ";";
+        outFile << i << ";" << sadCount[i][1] << ";";
+        outFile << sseCount[i][1] << ";";
+        outFile << satdCount[i][1] << ";";
+        outFile << transfCount[i][1] << ";";
 
         outFile << addCount[i][1] << ";";
         outFile << subCount[i][1] << ";";
@@ -250,6 +251,12 @@ Void TComAnalytics::incMults(UInt num){
     mulCount[currDepth][1] += (Double) num/(1000000.00);
 }
 
+Void TComAnalytics::openTimingFile(){
+    if(!cuTimingFile.is_open()){
+        cuTimingFile.open("cuTimingFile.txt",ofstream::out);
+    }
+}
+
 Void TComAnalytics::resetStats(){
     
     for(int i = 0; i < MAX_CU_DEPTH; i++){       
@@ -345,6 +352,8 @@ Int TComAnalytics::getYOffSetInPU(Int d, Int PUIdx, PartSize partSize){
 }
 
 Void TComAnalytics::setPOC(UInt poc){
+    TComAnalytics::openTimingFile();
+    cuTimingFile << "POC\t" << poc << endl;
     if (poc > 0)
         hsvFile << "EOP" << endl;
     hsvFile << "POC;" << poc << endl;

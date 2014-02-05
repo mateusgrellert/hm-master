@@ -930,8 +930,16 @@ Void TEncSlice::compressSlice( TComPic*& rpcPic )
        uiCUAddr = rpcPic->getPicSym()->getCUOrderMap(++uiEncCUOrder) )
   {
     // initialize CU encoder
-    TComDataCU*& pcCU = rpcPic->getCU( uiCUAddr );
-    pcCU->initCU( rpcPic, uiCUAddr );
+   
+      TComDataCU*& pcCU = rpcPic->getCU( uiCUAddr );
+      pcCU->initCU( rpcPic, uiCUAddr );
+      
+      long lBefore = clock();
+      TComAnalytics::openTimingFile();
+      Double dResult;
+      // call encoding function
+      
+      
 
 #if !RATE_CONTROL_LAMBDA_DOMAIN
     if(m_pcCfg->getUseRateCtrl())
@@ -1144,6 +1152,11 @@ Void TEncSlice::compressSlice( TComPic*& rpcPic )
       m_pcRateCtrl->updataRCUnitStatus();
     }
 #endif
+      
+      dResult = (double)(clock()-lBefore) / CLOCKS_PER_SEC;
+      
+      TComAnalytics::cuTimingFile << pcCU->getCUPelX() << '\t' << pcCU->getCUPelY() << '\t' << dResult << endl;
+      
   }
   if ((pcSlice->getPPS()->getNumSubstreams() > 1) && !depSliceSegmentsEnabled)
   {
