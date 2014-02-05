@@ -20,6 +20,7 @@ UInt TComComplexityBudgeter::nEncoded;
 UInt TComComplexityBudgeter::currPoc;
 Int TComComplexityBudgeter::searchRange;
 Bool TComComplexityBudgeter::hadME;
+Bool TComComplexityBudgeter::en_FME;
 Bool TComComplexityBudgeter::testAMP;
 Bool TComComplexityBudgeter::restore_AMVPInfo;
 Double TComComplexityBudgeter::frameBudget;
@@ -41,10 +42,10 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
     picWidth = w;
     picHeight = h;
     hadME = 1;
+    en_FME = 1;
     testAMP = 1;
     searchRange = 64;
-    restore_AMVPInfo = false;
-    keep_AMVP = NULL;
+    
     for(int i = 0; i < (w >> 6) + 1; i++){
         tempHistRow.clear();
         tempConfigRow.clear();
@@ -128,6 +129,7 @@ void TComComplexityBudgeter::updateConfig(TComDataCU*& cu){
 
     testAMP = configMap[x][y][4];
     hadME = configMap[x][y][5];
+    en_FME = configMap[x][y][6];
 }
 
 void TComComplexityBudgeter::resetConfig(TComDataCU*& cu){
@@ -390,7 +392,7 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt prof){
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 1; // AMP
             configMap[i][j][5] = 1; // Had ME
-            configMap[i][j][6] = 3;
+            configMap[i][j][6] = 1; // enable FME
             break;
         case 2:
             configMap[i][j][0] = 4; // Max CU Depth
@@ -399,7 +401,7 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt prof){
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 0; // AMP
             configMap[i][j][5] = 1; // Had ME
-            configMap[i][j][6] = 2;
+            configMap[i][j][6] = 1; // enable FME
 
                         break;
 
@@ -410,7 +412,7 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt prof){
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 0; // AMP
             configMap[i][j][5] = 0; // Had ME
-            configMap[i][j][6] = 1;
+            configMap[i][j][6] = 0; // enable FME
                         break;
 
         default:
@@ -420,7 +422,7 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt prof){
             configMap[i][j][3] = 4; // Max Num Ref Pics
             configMap[i][j][4] = 0; // AMP
             configMap[i][j][5] = 0; // Had ME
-            configMap[i][j][6] = 0;
+            configMap[i][j][6] = 0; // enable FME
                         break;
 
     }

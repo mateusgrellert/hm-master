@@ -8,6 +8,7 @@ def wrapResults(path):
 sequence_list = ['PeopleOnStreet','Kimono','BasketballDrive','BlowingBubbles','ChinaSpeed']
 
 nFrames = ['15','15','50','50','50']
+nFrames = '64'
 QP_list = ['22','27','32','37']
 
 MaxPartitionDepth_list = ['1','2','3']
@@ -23,7 +24,7 @@ i = 0
 
 for sequence in sequence_list:
 	execLine = baseLine + ' -c ../cfg/per-sequence/'+sequence+'_cropped.cfg'
-	execLine += ' --FramesToBeEncoded=' + nFrames[i]
+	execLine += ' --FramesToBeEncoded=' + nFrames
 	i += 1
 
 	for QP in QP_list:

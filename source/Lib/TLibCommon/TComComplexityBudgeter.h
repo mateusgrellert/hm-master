@@ -34,6 +34,7 @@ public:
     static UInt currPoc;
     static Int searchRange;
     static Bool hadME;
+    static Bool en_FME;
     static Bool testAMP;
     static Bool restore_AMVPInfo;
     static ofstream budgetFile;

@@ -3545,20 +3545,14 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
         
         iRefStart = 0;
         iRefEnd   = pcCU->getSlice()->getNumRefIdx(eRefPicList)-1;
-        
-        for ( Int iRefIdxTemp = iRefStart; iRefIdxTemp <= iRefEnd; iRefIdxTemp++ )
-        {
-            
-//#if 0
+       
 #if EN_COMPLEXITY_MANAGING
-          if (TComComplexityBudgeter::isConstrained() and (iRefIdxTemp == TComComplexityBudgeter::maxNumRefPics)){
-              TComComplexityBudgeter::restore_AMVPInfo = true;
-              break;
-          }
-          else TComComplexityBudgeter::restore_AMVPInfo = false;
-              
+        if (iRefEnd+1 < TComComplexityBudgeter::maxNumRefPics) TComComplexityBudgeter::maxNumRefPics = iRefEnd+1;
+        for ( Int iRefIdxTemp = iRefStart; iRefIdxTemp < TComComplexityBudgeter::maxNumRefPics; iRefIdxTemp++ )
+#else
+        for ( Int iRefIdxTemp = iRefStart; iRefIdxTemp <= iRefEnd; iRefIdxTemp++ )
 #endif
-          
+        {
           uiBitsTemp = uiMbBits[2] + uiMotBits[1-iRefList];
           if ( pcCU->getSlice()->getNumRefIdx(eRefPicList) > 1 )
           {
@@ -3568,13 +3562,7 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
           uiBitsTemp += m_auiMVPIdxCost[aaiMvpIdxBi[iRefList][iRefIdxTemp]][AMVP_MAX_NUM_CANDS];
           // call ME
           xMotionEstimation ( pcCU, pcOrgYuv, iPartIdx, eRefPicList, &cMvPredBi[iRefList][iRefIdxTemp], iRefIdxTemp, cMvTemp[iRefList][iRefIdxTemp], uiBitsTemp, uiCostTemp, true );
-          
           xCopyAMVPInfo(&aacAMVPInfo[iRefList][iRefIdxTemp], pcCU->getCUMvField(eRefPicList)->getAMVPInfo());
-
-#if EN_COMPLEXITY_MANAGING
-          if (TComComplexityBudgeter::isConstrained())
-              TComComplexityBudgeter::keep_AMVP = pcCU->getCUMvField(eRefPicList)->getAMVPInfo();
-#endif
           xCheckBestMVP(pcCU, eRefPicList, cMvTemp[iRefList][iRefIdxTemp], cMvPredBi[iRefList][iRefIdxTemp], aaiMvpIdxBi[iRefList][iRefIdxTemp], uiBitsTemp, uiCostTemp);
 
           if ( uiCostTemp < uiCostBi )
@@ -3604,12 +3592,7 @@ Void TEncSearch::predInterSearch( TComDataCU* pcCU, TComYuv* pcOrgYuv, TComYuv*&
         {
           if ( uiCostBi <= uiCost[0] && uiCostBi <= uiCost[1] )
           {
-#if EN_COMPLEXITY_MANAGING
-                if(TComComplexityBudgeter::restore_AMVPInfo)
-                                 xCopyAMVPInfo(&aacAMVPInfo[0][iRefIdxBi[0]], TComComplexityBudgeter::keep_AMVP);
-                else
-#endif
-                                xCopyAMVPInfo(&aacAMVPInfo[0][iRefIdxBi[0]], pcCU->getCUMvField(REF_PIC_LIST_0)->getAMVPInfo());
+            xCopyAMVPInfo(&aacAMVPInfo[0][iRefIdxBi[0]], pcCU->getCUMvField(REF_PIC_LIST_0)->getAMVPInfo());
             xCheckBestMVP(pcCU, REF_PIC_LIST_0, cMvBi[0], cMvPredBi[0][iRefIdxBi[0]], aaiMvpIdxBi[0][iRefIdxBi[0]], uiBits[2], uiCostBi);
             if(!pcCU->getSlice()->getMvdL1ZeroFlag())
             {
@@ -4568,8 +4551,10 @@ Void TEncSearch::xPatternSearchFracDIF(TComDataCU* pcCU,
                           pcPatternKey->getROIYHeight(),
                           iRefStride,
                           0, 0 );
-  
-  //  Half-pel refinement
+#if EN_COMPLEXITY_MANAGING
+  if(TComComplexityBudgeter::en_FME){
+#endif
+   // Half-pel refinement
   xExtDIFUpSamplingH ( &cPatternRoi, biPred );
   
   rcMvHalf = *pcMvInt;   rcMvHalf <<= 1;    // for mv-cost
@@ -4585,6 +4570,9 @@ Void TEncSearch::xPatternSearchFracDIF(TComDataCU* pcCU,
   rcMvQter = *pcMvInt;   rcMvQter <<= 1;    // for mv-cost
   rcMvQter += rcMvHalf;  rcMvQter <<= 1;
   ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 1, rcMvQter );
+#if EN_COMPLEXITY_MANAGING
+  }
+#endif
 }
 
 /** encode residual and calculate rate-distortion for a CU block

@@ -37,6 +37,7 @@
 
 #include "TEncTop.h"
 #include "TEncSlice.h"
+#include "TLibCommon/TComComplexityBudgeter.h"
 #include <math.h>
 
 //! \ingroup TLibEncoder
