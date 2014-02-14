@@ -1,51 +1,136 @@
+import os
 from os import system
 
 def wrapResults(path):
-	system("mkdir results_"+path)
+	system("mkdir -p results_"+path)
 	system("mv *csv *hsv ./results_"+path)
 
 
-sequence_list = ['PeopleOnStreet','Kimono','BasketballDrive','BlowingBubbles','ChinaSpeed']
+sequence_list = ['PeopleOnStreet']
 
-nFrames = ['15','15','50','50','50']
 nFrames = '64'
+
 QP_list = ['22','27','32','37']
 
-MaxPartitionDepth_list = ['1','2','3']
-QuadtreeTUMaxDepthInter_list = ['3','2','1']
-SearchRange_list = ['32','16','8']
-HadamardME_list = ['0']
-AMP_list = ['0']
-RDOQ_list = ['0']
-
-baseLine = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg'
 
 i = 0
 
 for sequence in sequence_list:
-	execLine = baseLine + ' -c ../cfg/per-sequence/'+sequence+'_cropped.cfg'
-	execLine += ' --FramesToBeEncoded=' + nFrames
-	i += 1
-
 	for QP in QP_list:
-		execLine += ' --QP='+QP
 
-		# start running each list here -- don't nest loops from this point on
-		print execLine+' --SearchRange=32 --AMP=0 --QuadtreeTUMaxDepthInter=1'
-		system(execLine+' --SearchRange=32 --AMP=0 --QuadtreeTUMaxDepthInter=1')
+		strSeq = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg -c ../cfg/per-sequence/'
+		strSeq += sequence
+			
+
+		if sequence == 'NebutaFestival' or sequence == 'SteamLocomotiveTrain':
+			strSeq += '_10bit.cfg'
+		else:
+			strSeq += '.cfg'
+		
+		if sequence == 'RaceHorsesC':
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/'+sequence[:-1]+'*8*').readlines()
+		elif sequence in ['Kimono','BasketballDrive','Cactus','BQTerrace']:
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/cropped/'+sequence[:-1]+'*').readlines()
+		else:
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/'+sequence+'*').readlines()
+		
+		seq_path = seq_path[0].strip('\n')
+
+		strSeq += ' --InputFile=\"'+seq_path+'\"'
+		strSeq += ' --FramesToBeEncoded=' + nFrames
+
+		qpLine = strSeq + ' --QP='+QP
+		
+		# PS 0
+		finalLine = qpLine
+		print finalLine
+		system(finalLine)
+		wrapResults(sequence+"_"+QP+"_"+"PS0")
+
+		# PS 1
+		finalLine = qpLine + ' --SearchRange=16'
+		print finalLine
+		system(finalLine)
 		wrapResults(sequence+"_"+QP+"_"+"PS1")
 
-		print execLine+' --SearchRange=16 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0'
-		system(execLine+' --SearchRange=16 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0')
+		# PS 2
+		finalLine = qpLine + ' --SearchRange=8'
+		finalLine += ' --AMP=0'
+		finalLine += ' --QuadtreeTUMaxDepthInter=1'
+		print finalLine
+		system(finalLine)
 		wrapResults(sequence+"_"+QP+"_"+"PS2")
+		
+		# PS 3
+		strSeq = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main.cfg -c ../cfg/per-sequence/'
+		if sequence in ['Kimono','BasketballDrive','Cactus','BQTerrace']:
+			strSeq += 'cropped/'
+		strSeq += sequence
 
-		print execLine+' --SearchRange=8 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0 --MaxPartitionDepth=2'
-		system(execLine+' --SearchRange=8 --AMP=0 --QuadtreeTUMaxDepthInter=1 --HadamardME=0 --MaxPartitionDepth=2')
+		if sequence == 'NebutaFestival' or sequence == 'SteamLocomotiveTrain':
+			strSeq += '_10bit.cfg'
+		else:
+			strSeq += '.cfg'
+			
+		if sequence == 'RaceHorsesC':
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/'+sequence[:-1]+'*8*').readlines()
+		elif sequence in ['Kimono','BasketballDrive','Cactus','BQTerrace']:
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/cropped/'+sequence[:-1]+'*').readlines()
+		else:
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/'+sequence+'*').readlines()
+			
+		seq_path = seq_path[0].strip('\n')
+
+		strSeq += ' --InputFile=\"'+seq_path+'\"'
+		strSeq += ' --FramesToBeEncoded=' + nFrames
+		qpLine = strSeq + ' --QP='+QP
+
+
+		finalLine = qpLine + ' --SearchRange=8'
+		finalLine += ' --AMP=0'
+		finalLine += ' --QuadtreeTUMaxDepthInter=1'
+		finalLine += ' --HadamardME=0'
+		finalLine += ' --MaxPartitionDepth=3'
+		print finalLine
+		system(finalLine)
 		wrapResults(sequence+"_"+QP+"_"+"PS3")
 
-		system("mkdir QP_"+QP)
+		# PS 4
+		strSeq = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main_maxref1.cfg -c ../cfg/per-sequence/'
+		if sequence in ['Kimono','BasketballDrive','Cactus','BQTerrace']:
+			strSeq += 'cropped/'
+		strSeq += sequence
+
+		if sequence == 'NebutaFestival' or sequence == 'SteamLocomotiveTrain':
+			strSeq += '_10bit.cfg'
+		else:
+			strSeq += '.cfg'
+			
+		if sequence == 'RaceHorsesC':
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/'+sequence[:-1]+'*8*').readlines()
+		elif sequence in ['Kimono','BasketballDrive','Cactus','BQTerrace']:
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/cropped/'+sequence[:-1]+'*').readlines()
+		else:
+			seq_path = os.popen('ls /Volumes/Time\\ Capsule/origCfP/'+sequence+'*').readlines()
+			
+		seq_path = seq_path[0].strip('\n')
+
+		strSeq += ' --InputFile=\"'+seq_path+'\"'
+		strSeq += ' --FramesToBeEncoded=' + nFrames
+		qpLine = strSeq + ' --QP='+QP
+
+		finalLine = qpLine + ' --SearchRange=8'
+		finalLine += ' --AMP=0'
+		finalLine += ' --QuadtreeTUMaxDepthInter=1'
+		finalLine += ' --HadamardME=0'
+		finalLine += ' --MaxPartitionDepth=3'
+		print finalLine
+		system(finalLine)
+		wrapResults(sequence+"_"+QP+"_"+"PS4")
+
+		system("mkdir -p QP_"+QP)
 		system("mv results_* ./QP_"+QP)
 
-	system("mkdir "+ sequence)
+	system("mkdir -p "+ sequence)
 	system("mv QP_* ./"+sequence)
 

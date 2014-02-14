@@ -4555,7 +4555,7 @@ Void TEncSearch::xPatternSearchFracDIF(TComDataCU* pcCU,
   if(TComComplexityBudgeter::en_FME){
 #endif
    // Half-pel refinement
-  xExtDIFUpSamplingH ( &cPatternRoi, biPred );
+   xExtDIFUpSamplingH ( &cPatternRoi, biPred );
   
   rcMvHalf = *pcMvInt;   rcMvHalf <<= 1;    // for mv-cost
   TComMv baseRefMv(0, 0);
@@ -4569,7 +4569,7 @@ Void TEncSearch::xPatternSearchFracDIF(TComDataCU* pcCU,
   
   rcMvQter = *pcMvInt;   rcMvQter <<= 1;    // for mv-cost
   rcMvQter += rcMvHalf;  rcMvQter <<= 1;
-  ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 1, rcMvQter );
+  ruiCost = xPatternRefinement( pcPatternKey, baseRefMv, 1, rcMvQter ); 
 #if EN_COMPLEXITY_MANAGING
   }
 #endif

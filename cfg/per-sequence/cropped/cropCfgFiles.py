@@ -9,11 +9,13 @@ if '10bit' in path:
 	exit()
 
 cfg = open(path,'r')
-new_cfg = open(path.split('.')[0]+'_cropped.cfg','w')
+new_cfg = open(path.split('.')[0]+'.cfg','w')
 
 lines = cfg.readlines()
 cfg.close()
 sw,sh = -1,-1
+
+CTUsize = 16 # MINIMUM CTU size
 
 for line in lines:
 	if 'InputFile' in line:
@@ -23,13 +25,13 @@ for line in lines:
 	elif 'SourceWidth' in line:
 		tokens = line.split(':')
 		sw = int(tokens[1].split()[0])
-		sw = int(floor(sw/64))*64
+		sw = int(floor(sw/CTUsize))*CTUsize
 		print >> new_cfg, tokens[0] + ' : ' + str(sw)
 	
 	elif 'SourceHeight' in line:
 		tokens = line.split(':')
 		sh = int(tokens[1].split()[0])
-		sh = int(floor(sh/64))*64
+		sh = int(floor(sh/CTUsize))*CTUsize
 		print >> new_cfg, tokens[0] + ' : ' + str(sh)
 	elif sw != -1 and sh != -1:
 		print >> new_cfg, inp_line+inp_yuv+'_'+str(sw)+'x'+str(sh)+'.yuv'
