@@ -8,9 +8,13 @@
 #ifndef TCOMCOMPLEXITYBUDGETER_H
 #define	TCOMCOMPLEXITYBUDGETER_H
 
+#include "TComComplexityManagement.h"
+
+
 using namespace std;
 
-typedef pair<UInt,vector<Double> > cuStats; //max depth, dominant direction vector 
+//typedef pair<UInt,vector<Double> > cuStats; //max depth, dominant direction vector 
+typedef pair<UInt,UInt> cuStats; //max depth, dominant direction vector 
 typedef vector<UInt> config;
 
 class TComComplexityBudgeter {
@@ -22,7 +26,7 @@ public:
     static vector<Double> weightsVector;
     static Double frameBudget;
     static UInt origGop;
-    static Int64 countBudget[4];
+    static Int64 countBudget[NUM_PSETS];
     
     static UInt picWidth;
     static UInt picHeight;
@@ -48,13 +52,17 @@ public:
     
     static Void printBudgetStats();
     static Void resetBudgetStats();
+    static UInt promote(UInt, UInt);
+    static UInt demote(UInt, UInt);
     static Void uniformBudget();
     static Void bottomUpBudget();
     static Void topDownBudget();
     static Void knapSackBudget();
+    static Void leafPriorityBudget();
+
     static Void ICIPBudget();
     static Void distributeBudget();
-    static Double updateEstimationAndStats(Double est, UInt old, UInt neww);
+    static Double updateEstimationAndStats(Double est, Int old, UInt neww);
 
     static Void setDepthHistory(TComDataCU *&, UInt);
     static Void setVectorHistory(UInt, UInt, UInt);

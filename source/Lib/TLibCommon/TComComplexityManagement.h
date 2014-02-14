@@ -8,23 +8,25 @@
 #ifndef TCOMCOMPLEXITYMANAGEMENT_H
 #define	TCOMCOMPLEXITYMANAGEMENT_H
 
-#include "MyTypedef.h"
-#include "TComAnalytics.h"
-#include "TComComplexityController.h"
-#include "TComComplexityBudgeter.h"
 
-
-#define EN_COMPLEXITY_MANAGING 0
+#define EN_COMPLEXITY_MANAGING 1
 #define NUM_RD_FRAMES 2
+
+#define NUM_PSETS 5
+#define PS100 4
+#define PS80 3
+#define PS60 2
+#define PS40 1
+#define PS20 0
 
 #define CYCLES_ADD 1
 #define CYCLES_SUB 1
 #define CYCLES_MULT 4
 
 #define CYCLES_SAD 64
-#define CYCLES_SSE 128
-#define CYCLES_SATD 128
-#define CYCLES_TRANSF 256 // 64x64 transform
+#define CYCLES_SSE 256
+#define CYCLES_SATD 256
+#define CYCLES_TRANSF 544 // 64x64 transform
 
 
 #define MANAGE_GOP 30
@@ -37,6 +39,12 @@
 #define KI (2*KP/TU)
 //#define KI (2*KP/TU/4)
 #define KD (KP*TU/8.0)
+
+
+#include "MyTypedef.h"
+#include "TComAnalytics.h"
+#include "TComComplexityController.h"
+#include "TComComplexityBudgeter.h"
 
 
 #endif	/* TCOMCOMPLEXITYMANAGEMENT_H */
