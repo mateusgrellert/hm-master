@@ -29,7 +29,7 @@
 #define CYCLES_TRANSF 544 // 64x64 transform
 
 
-#define MANAGE_GOP 30
+#define MANAGE_GOP 500 // same as I-period
 
 #define KU 0.06
 #define TU 0.4

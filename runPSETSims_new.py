@@ -10,7 +10,7 @@ sequence_list = ['PeopleOnStreet']
 
 nFrames = '64'
 
-QP_list = ['22','27','32','37']
+QP_list = ['22','37']
 
 
 i = 0
@@ -40,13 +40,13 @@ for sequence in sequence_list:
 		strSeq += ' --FramesToBeEncoded=' + nFrames
 
 		qpLine = strSeq + ' --QP='+QP
-		
+		"""	
 		# PS 0
 		finalLine = qpLine
 		print finalLine
 		system(finalLine)
 		wrapResults(sequence+"_"+QP+"_"+"PS0")
-
+		"""
 		# PS 1
 		finalLine = qpLine + ' --SearchRange=32'
 		print finalLine
@@ -94,7 +94,7 @@ for sequence in sequence_list:
 		print finalLine
 		system(finalLine)
 		wrapResults(sequence+"_"+QP+"_"+"PS3")
-"""
+		"""
 		# PS 4
 		strSeq = './TAppEncoderStatic -c ../cfg/encoder_randomaccess_main_maxref1.cfg -c ../cfg/per-sequence/'
 		if sequence in ['Kimono','BasketballDrive','Cactus','BQTerrace']:
@@ -127,11 +127,10 @@ for sequence in sequence_list:
 		print finalLine
 		system(finalLine)
 		wrapResults(sequence+"_"+QP+"_"+"PS4")
+		"""
 
 		system("mkdir -p QP_"+QP)
 		system("mv results_* ./QP_"+QP)
-		"""
-
 	system("mkdir -p "+ sequence)
 	system("mv QP_* ./"+sequence)
 

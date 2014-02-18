@@ -5,7 +5,7 @@
 using namespace std;
 
 Int64 TComComplexityBudgeter::countBudget[NUM_PSETS];
-
+UInt new_hist[50][50];
 vector<vector <cuStats> > TComComplexityBudgeter::history;
 vector<vector <config> > TComComplexityBudgeter::configMap;
 vector<Double> TComComplexityBudgeter::weightsVector;
@@ -46,6 +46,10 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
     testAMP = 1;
     searchRange = 64;
     
+    for(int i = 0; i < 50; i++)
+        for(int j = 0; j < 50; j++)
+                new_hist [i][j] = -1;
+    
     for(int i = 0; i < (w >> 6) + 1; i++){
         tempHistRow.clear();
         tempConfigRow.clear();
@@ -62,7 +66,7 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
 
             // for config map
             for(int k = 0; k < 7; k++){
-                conf.push_back(0);
+                conf.push_back(-1);
             }
             tempConfigRow.push_back(conf);
         }
@@ -102,8 +106,8 @@ void TComComplexityBudgeter::setDepthHistory(TComDataCU *&pcCU, UInt pu_idx){
     
     pcCU->getPartPosition(pu_idx, xP, yP, nPSW, nPSH);
 
-    history[x >> 6][y >> 6].first = d;
-
+   //history[x >> 6][y >> 6].first = d;
+    new_hist[x >> 6][y >> 6] = d;
 //    if((pcCU->isIntra(pu_idx)) or (pcCU->isSkipped(pu_idx))){
 //        history[x >> 6][y >> 6].second[8] += ((nPSW*nPSH)/(64.0*64)); // no movement idx
 //    }
@@ -157,6 +161,7 @@ Bool TComComplexityBudgeter::isConstrained(){
 
 UInt TComComplexityBudgeter::promote(UInt ctux, UInt ctuy){
     UInt new_pset = configMap[ctux][ctuy][6]+1; // upgrading pset
+    assert(new_pset < 5);
     setConfigMap(ctux,ctuy,new_pset);
     return new_pset;
 }
@@ -181,7 +186,7 @@ Void TComComplexityBudgeter::uniformBudget(){
     
     for(int i = 0; i < history.size(); i++){
         for(int j = 0; j < history[0].size(); j++){
-            if (history[i][j].first == -1)
+            if (new_hist[i][j] == -1)
                 continue;
             setConfigMap(i,j,CUConfig);
             estCycleCount = updateEstimationAndStats(estCycleCount,-1,CUConfig);
@@ -199,7 +204,7 @@ Void TComComplexityBudgeter::topDownBudget(){
     // start by assigning PS100 to all
     for(int i = 0; i < history.size(); i++){
         for(int j = 0; j < history[0].size(); j++){
-            if (history[i][j].first == -1) // sometimes the history table has more nodes than CTUs
+            if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
                 continue;
 
             setConfigMap(i,j,PS100);
@@ -212,10 +217,10 @@ Void TComComplexityBudgeter::topDownBudget(){
         for (Int demote_depth = 0; demote_depth < 4 and estCycleCount > frameBudget; demote_depth++){
             for(int i = 0; i < history.size() and estCycleCount > frameBudget; i++){
                 for(int j = 0; j < history[0].size() and estCycleCount > frameBudget; j++){
-                    if (history[i][j].first == -1) // sometimes the history table has more nodes than CTUs
+                    if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
                         continue;
 
-                    if (history[i][j].first == demote_depth){
+                    if (new_hist[i][j] == demote_depth){
                         old_pset = configMap[i][j][6];
                         new_pset = demote(i,j);
                         estCycleCount = updateEstimationAndStats(estCycleCount,old_pset,new_pset);
@@ -237,7 +242,7 @@ Void TComComplexityBudgeter::bottomUpBudget(){
     // start by assigning PS20 to all
     for(int i = 0; i < history.size(); i++){
         for(int j = 0; j < history[0].size(); j++){
-            if (history[i][j].first == -1) // sometimes the history table has more nodes than CTUs
+            if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
                 continue;
 
             setConfigMap(i,j,PS20);
@@ -250,10 +255,10 @@ Void TComComplexityBudgeter::bottomUpBudget(){
         for (Int promote_depth = 3; promote_depth >=0 and estCycleCount < frameBudget; promote_depth--){
             for(int i = 0; i < history.size() and estCycleCount < frameBudget; i++){
                 for(int j = 0; j < history[0].size() and estCycleCount < frameBudget; j++){
-                    if (history[i][j].first == -1) // sometimes the history table has more nodes than CTUs
+                    if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
                         continue;
 
-                    if (history[i][j].first == promote_depth){
+                    if (new_hist[i][j] == promote_depth){
                         old_pset = configMap[i][j][6];
                         new_pset = promote(i,j);
                         estCycleCount = updateEstimationAndStats(estCycleCount,old_pset,new_pset);
@@ -267,7 +272,10 @@ Void TComComplexityBudgeter::bottomUpBudget(){
     
 }
         
-Void TComComplexityBudgeter::knapSackBudget(){return;}
+Void TComComplexityBudgeter::knapSackBudget(){
+
+    return;
+}
 
 Void TComComplexityBudgeter::leafPriorityBudget(){
     Double estCycleCount = 0.0;
@@ -276,18 +284,18 @@ Void TComComplexityBudgeter::leafPriorityBudget(){
 
    for(int i = 0; i < history.size(); i++){
         for(int j = 0; j < history[0].size(); j++){
-            if (history[i][j].first == -1) // sometimes the history table has more nodes than CTUs
+            if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
                 continue;
             
-            if(history[i][j].first < 2){ //set LOWEST PSET!
+            if(new_hist[i][j] < 2){ //set LOWEST PSET!
                 setConfigMap(i,j,PS20);
                 estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS20);
             }
-            else if(history[i][j].first == 3){ //set HIGHEST PSET!
+            else if(new_hist[i][j] == 3){ //set HIGHEST PSET!
                 setConfigMap(i,j, PS100);
                 estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS100);
             }
-            else if(history[i][j].first == 2){ //set SECOND HIGHEST PSET!
+            else if(new_hist[i][j] == 2){ //set SECOND HIGHEST PSET!
                 setConfigMap(i,j, PS80);
                 estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS80);
             }
@@ -305,10 +313,10 @@ Void TComComplexityBudgeter::leafPriorityBudget(){
         for (Int promote_depth = 1; promote_depth >=0 and estCycleCount < frameBudget; promote_depth--){
             for(int i = 0; i < history.size() and estCycleCount < frameBudget; i++){
                 for(int j = 0; j < history[0].size() and estCycleCount < frameBudget; j++){
-                    if (history[i][j].first == -1) // sometimes the history table has more nodes than CTUs
+                    if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
                         continue;
 
-                    if (history[i][j].first == promote_depth){
+                    if (new_hist[i][j] == promote_depth){
                         old_pset = configMap[i][j][6];
                         new_pset = promote(i,j);
                         estCycleCount = updateEstimationAndStats(estCycleCount,old_pset,new_pset);
@@ -325,104 +333,136 @@ Void TComComplexityBudgeter::leafPriorityBudget(){
     //cout << estCycleCount << "\t" << frameBudget << endl;
 }
 
+Void TComComplexityBudgeter::rootPriorityBudget(){
+    Double estCycleCount = 0.0;
+    
+    // first step - set HIGH and LOW configs and estimate cycle count
+
+   for(int i = 0; i < history.size(); i++){
+        for(int j = 0; j < history[0].size(); j++){
+            if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
+                continue;
+            
+            if(new_hist[i][j] > 1){ //set HIGHEST PSET!
+                setConfigMap(i,j,PS100);
+                estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS100);
+            }
+            else if(new_hist[i][j] == 0){ //set LOWEST PSET!
+                setConfigMap(i,j, PS20);
+                estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS20);
+            }
+            else if(new_hist[i][j] == 1){ //set LOWEST HIGHEST PSET!
+                setConfigMap(i,j, PS40);
+                estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS40);
+            }
+              //reset history for future refs
+//            for(int k = 0; k < 9; k++)
+//                history[i][j].second[k] = 0.0;
+        }
+
+    }
+    
+  //  refine the bottom depths using top-down
+        UInt new_pset,old_pset, n_demotions = 0;
+
+    while(n_demotions < 4){ // maximum #iterations -- all PSETs are already set to PS20
+        for (Int demote_depth = 2; demote_depth < 4 and estCycleCount > frameBudget; demote_depth++){
+            for(int i = 0; i < history.size() and estCycleCount > frameBudget; i++){
+                for(int j = 0; j < history[0].size() and estCycleCount > frameBudget; j++){
+                    if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
+                        continue;
+
+                    if (new_hist[i][j] == demote_depth){
+                        old_pset = configMap[i][j][6];
+                        new_pset = demote(i,j);
+                        estCycleCount = updateEstimationAndStats(estCycleCount,old_pset,new_pset);
+                    }
+                }
+            }          
+        }
+        n_demotions++;
+    }
+    
+              
+
+
+    //cout << estCycleCount << "\t" << frameBudget << endl;
+}
+
+
 Void TComComplexityBudgeter::ICIPBudget(){
     Double estCycleCount = 0.0;
+    UInt new_pset,old_pset, n_demotions = 0;
 
     // first step - set HIGH and LOW configs and estimate cycle count
     for(int i = 0; i < history.size(); i++){
         for(int j = 0; j < history[0].size(); j++){
-            if (history[i][j].first == -1)
+            if (new_hist[i][j] == -1)
                         continue;
                    
-            if(history[i][j].first == 0 or (estCycleCount > frameBudget)){ //set LOW budget!
-                setConfigMap(i,j,0);
-                estCycleCount = updateEstimationAndStats(estCycleCount,-1,0);
-                history[i][j].first = 0; // there should be some other way to account this without modifying the history
+            if(new_hist[i][j] == 0){ //set LOW budget!
+                setConfigMap(i,j,PS20);
+                estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS20);
             }
             
-            else if(history[i][j].first == 3){ //set HIGH budget!
-                setConfigMap(i,j,3);
-                estCycleCount = updateEstimationAndStats(estCycleCount,-1,3);
+            else if(new_hist[i][j] == 3){ //set HIGH budget!
+                setConfigMap(i,j,PS100);
+                estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS100);
             }
-        }
-    }
-            
-    // second step - set MEDIUM budget according to computation available
-    for(int i = 0; i < history.size(); i++){
-        for(int j = 0; j < history[0].size(); j++){
-            if (history[i][j].first == -1)
-                   continue;
-                   
-            if(history[i][j].first == 1 or history[i][j].first == 2){
-                if(estCycleCount < frameBudget){ // still available - spend some effort
-                    setConfigMap(i,j,2);
-                    estCycleCount = updateEstimationAndStats(estCycleCount,-1,2);
-                }
-                else{                    // no more available - use low effort
-                    setConfigMap(i,j,1);
-                    estCycleCount = updateEstimationAndStats(estCycleCount,-1,1);
-                }                
-            }   
-        }
-    }
-        //  loop : reset LOW to HIGh If B > est
-    for(int i = 0; i < history.size() and estCycleCount < frameBudget; i++){
-        for(int j = 0; j < history[0].size() and estCycleCount < frameBudget; j++){
-             if (history[i][j].first == -1)
-                        continue;
-                   
-            // apply high config.to med-high budgeted CUs
-            if(configMap[i][j][6] == 2){
-                setConfigMap(i,j,3);
-                estCycleCount = updateEstimationAndStats(estCycleCount,2,3);
-            }            
-            
-            // apply med-high config.to med-low and low budgeted CUs
-            if(configMap[i][j][6] ==  0 or configMap[i][j][6] == 1){
-                if(configMap[i][j][6] == 1){ // means it was med-L
-                    setConfigMap(i,j,2);
-                    estCycleCount = updateEstimationAndStats(estCycleCount,1,2);
-
-                }
-                else {
-                    setConfigMap(i,j,2);
-                    estCycleCount = updateEstimationAndStats(estCycleCount,0,2);
-                    
-                }
+            else{
+                setConfigMap(i,j,PS60);
+                estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS60);
             }
         }
     }
     
-    // last loop : reset high to low if est > B
-    for(int i = 0; i < history.size() and estCycleCount > frameBudget; i++){
-        for(int j = 0; j < history[0].size() and estCycleCount > frameBudget; j++){
-            if (history[i][j].first == -1)
-                  continue;
-                   
-            // apply med-low config.to high budgeted CUs
-            if(configMap[i][j][6] == 3){
-                    setConfigMap(i,j,1);
-                    estCycleCount = updateEstimationAndStats(estCycleCount,3,1);
-            }            
-            
-            // apply low config.to med-low and med-high budgeted CUs
-            if(configMap[i][j][6] == 2 or configMap[i][j][6] == 1){
-                if(configMap[i][j][6] == 2) // means it was med-H
-                    estCycleCount = updateEstimationAndStats(estCycleCount,2,0);
-                else
-                    estCycleCount = updateEstimationAndStats(estCycleCount,1,0);
+           // second step - start demoting until available computation is reached
+    
+    UInt n_promotions = 0;
+    
+    n_promotions = 0;
 
-                    setConfigMap(i,j,0);
+    while(n_promotions < 4){ // maximum #iterations -- all PSETs are already set to PS100
+        for (Int promote_depth = 2; promote_depth >=0 and estCycleCount < frameBudget; promote_depth--){
+            for(int i = 0; i < history.size() and estCycleCount < frameBudget; i++){
+                for(int j = 0; j < history[0].size() and estCycleCount < frameBudget; j++){
+                    if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
+                        continue;
 
-            }
-            
-            //reset history for future refs
-            for(int k = 0; k < 9; k++)
-                history[i][j].second[k] = 0.0;
+                    if (new_hist[i][j] == promote_depth){
+                        old_pset = configMap[i][j][6];
+                        if (old_pset < PS100){
+                                new_pset = promote(i,j);
+                                estCycleCount = updateEstimationAndStats(estCycleCount,old_pset,new_pset);
+                        }
+                    }
+                }
+            }          
         }
+        n_promotions++;
     }
 
-    //cout << estCycleCount << "\t" << frameBudget << endl;
+    // second step - start demoting until available computation is reached
+    while(n_demotions < 4){ // maximum #iterations -- all PSETs are already set to PS20
+        for (Int demote_depth = 1; demote_depth <= 3 and estCycleCount > frameBudget; demote_depth++){
+            for(int i = 0; i < history.size() and estCycleCount > frameBudget; i++){
+                for(int j = 0; j < history[0].size() and estCycleCount > frameBudget; j++){
+                    if (new_hist[i][j] == -1) // sometimes the history table has more nodes than CTUs
+                        continue;
+
+                    if (new_hist[i][j] == demote_depth){
+                        old_pset = configMap[i][j][6];
+                        if (old_pset > PS20){
+                                new_pset = demote(i,j);
+                                estCycleCount = updateEstimationAndStats(estCycleCount,old_pset,new_pset);
+                        }
+                    }
+                }
+            }          
+        }
+        n_demotions++;
+    }
+       
 }
 
 
@@ -453,7 +493,7 @@ Double TComComplexityBudgeter::updateEstimationAndStats(Double est, Int old_pset
 
 Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt pset){
     switch (pset){
-        case 4:
+        case PS100:
             configMap[i][j][0] = 4; // Max CU Depth
             configMap[i][j][1] = 3; // Max TU Depth
             configMap[i][j][2] = 64; // SR
@@ -462,7 +502,7 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt pset){
             configMap[i][j][5] = 1; // Had ME
             configMap[i][j][6] = 4; // PSET INDEX
             break;
-        case 3:                         
+        case PS80:                         
             configMap[i][j][0] = 4; // Max CU Depth
             configMap[i][j][1] = 3; // Max TU Depth
             configMap[i][j][2] = 32; // SR
@@ -471,8 +511,8 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt pset){
             configMap[i][j][5] = 1; // Had ME
             configMap[i][j][6] = 3; // PSET INDEX
             break;
-        case 2:
-            configMap[i][j][0] = 3; // Max CU Depth
+        case PS60:
+            configMap[i][j][0] = 4; // Max CU Depth
             configMap[i][j][1] = 1; // Max TU Depth
             configMap[i][j][2] = 32; // SR
             configMap[i][j][3] = 4; // Max Num Ref Pics
@@ -481,7 +521,7 @@ Void TComComplexityBudgeter::setConfigMap(UInt i, UInt j, UInt pset){
             configMap[i][j][6] = 2; // PSET INDEX
             break;
 
-        case 1:
+        case PS40:
             configMap[i][j][0] = 3; // Max CU Depth
             configMap[i][j][1] = 1; // Max TU Depth
             configMap[i][j][2] = 16; // SR
@@ -509,11 +549,11 @@ Double TComComplexityBudgeter::estimateCycleCount(UInt d, UInt conf){
     Double count = 0;
     Double factor = 0.0;
     switch (conf){
-        case 4: factor = 1.0; break; //PS100
-        case 3: factor = 0.8; break; //PS80
-        case 2: factor = 0.6; break; //PS60
-        case 1: factor = 0.4; break; //PS40
-        case 0: factor = 0.2; break; //PS20
+        case PS100: factor = 1.0; break; //PS100
+        case PS80: factor = 0.8; break; //PS80
+        case PS60: factor = 0.6; break; //PS60
+        case PS40: factor = 0.4; break; //PS40
+        case PS20: factor = 0.2; break; //PS20
         default: factor = 1.0; break;
     }
     
@@ -537,7 +577,8 @@ Void TComComplexityBudgeter::distributeBudget(){
         case 1: topDownBudget(); break;
         case 2: bottomUpBudget(); break;
         case 3: leafPriorityBudget(); break; 
-        case 4: ICIPBudget(); break;
+        case 4: rootPriorityBudget(); break; 
+        case 5: ICIPBudget(); break;
         default: uniformBudget(); break;
     }
     printBudgetStats();
@@ -568,7 +609,7 @@ Void TComComplexityBudgeter::printBudgetStats(){
 }
 
 Void TComComplexityBudgeter::setFrameBudget(Double budget, UInt t_layer){
-    frameBudget = budget*calcWeight(t_layer);
+    frameBudget = budget*calcWeight(t_layer)*0.7;
     //cout << budget << "\t" << calcWeight(t_layer) << endl;
 }
 
@@ -611,51 +652,51 @@ Double TComComplexityBudgeter::calcMotionAngle(Int x1, Int y1, Int x2, Int y2){
 //                switch(domDir){
 //                    case 0:
 //                        if(i+1 < picWidth)
-//                            history[i+1][j].first = max(history[i][j].first, history[i+1][j].first);
+//                            history[i+1][j].first = max(new_hist[i][j], history[i+1][j].first);
 //                        break;
 //                    case 1:
 //                        if(i+1 < picWidth)
-//                            history[i+1][j].first = max(history[i][j].first, history[i+1][j].first);
+//                            history[i+1][j].first = max(new_hist[i][j], history[i+1][j].first);
 //                        if((i+1 < picWidth) and (j-1  >= 0))
-//                            history[i+1][j-1].first = max(history[i][j].first, history[i+1][j-1].first);
+//                            history[i+1][j-1].first = max(new_hist[i][j], history[i+1][j-1].first);
 //                        if(j-1 >= 0)
-//                            history[i][j-1].first = max(history[i][j].first, history[i][j-1].first);
+//                            history[i][j-1].first = max(new_hist[i][j], history[i][j-1].first);
 //                        break;
 //                    case 2:
 //                        if(j-1 >= 0)
-//                            history[i][j-1].first = max(history[i][j].first, history[i][j-1].first);
+//                            history[i][j-1].first = max(new_hist[i][j], history[i][j-1].first);
 //                        break;
 //                    case 3:
 //                        if(j-1 >= 0)
-//                            history[i][j-1].first = max(history[i][j].first, history[i][j-1].first);
+//                            history[i][j-1].first = max(new_hist[i][j], history[i][j-1].first);
 //                        if((i-1  >= 0) and (j-1  >= 0))
-//                            history[i-1][j-1].first = max(history[i][j].first, history[i-1][j-1].first);
+//                            history[i-1][j-1].first = max(new_hist[i][j], history[i-1][j-1].first);
 //                        if(i-1  >= 0)
-//                            history[i-1][j].first = max(history[i][j].first, history[i-1][j].first);
+//                            history[i-1][j].first = max(new_hist[i][j], history[i-1][j].first);
 //                        break;
 //                    case 4:
 //                        if(i-1 >= 0)
-//                            history[i-1][j].first = max(history[i][j].first, history[i-1][j].first);
+//                            history[i-1][j].first = max(new_hist[i][j], history[i-1][j].first);
 //                        break;
 //                    case 5:
 //                        if(i-1 >= 0)
-//                            history[i-1][j].first = max(history[i][j].first, history[i-1][j].first);
+//                            history[i-1][j].first = max(new_hist[i][j], history[i-1][j].first);
 //                        if((i-1  >= 0) and (j+1 < picHeight))
-//                            history[i-1][j+1].first = max(history[i][j].first, history[i-1][j+1].first);
+//                            history[i-1][j+1].first = max(new_hist[i][j], history[i-1][j+1].first);
 //                        if(j+1 < picHeight)
-//                            history[i][j+1].first = max(history[i][j].first, history[i][j+1].first);
+//                            history[i][j+1].first = max(new_hist[i][j], history[i][j+1].first);
 //                        break;
 //                    case 6:
 //                        if(j+1 < picHeight)
-//                            history[i][j+1].first = max(history[i][j].first, history[i][j+1].first);
+//                            history[i][j+1].first = max(new_hist[i][j], history[i][j+1].first);
 //                        break;
 //                    case 7:
 //                        if(j+1 < picHeight)
-//                            history[i][j+1].first = max(history[i][j].first, history[i][j+1].first);
+//                            history[i][j+1].first = max(new_hist[i][j], history[i][j+1].first);
 //                        if((i+1 < picWidth) and (j+1 < picHeight))
-//                            history[i+1][j+1].first = max(history[i][j].first, history[i+1][j+1].first);
+//                            history[i+1][j+1].first = max(new_hist[i][j], history[i+1][j+1].first);
 //                        if(i+1 < picWidth)
-//                            history[i+1][j].first = max(history[i][j].first, history[i+1][j].first);
+//                            history[i+1][j].first = max(new_hist[i][j], history[i+1][j].first);
 //                        break;
 //                    default:
 //                        break;

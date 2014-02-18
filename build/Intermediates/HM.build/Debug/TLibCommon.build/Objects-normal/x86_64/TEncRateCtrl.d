@@ -1,0 +1,20 @@
+dependencies: \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/TEncRateCtrl.cpp \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/TEncRateCtrl.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/CommonDef.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TypeDef.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComDataCU.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComMotionInfo.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComMv.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComSlice.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComRom.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComList.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComRdCost.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComPattern.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComRdCostWeightPrediction.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibEncoder/TEncCfg.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComPic.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComPicSym.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComPicYuv.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/TComBitStream.h \
+  /Users/grellert/hm-master/source/Lib/TLibEncoder/../TLibCommon/SEI.h

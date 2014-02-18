@@ -14,7 +14,7 @@
 using namespace std;
 
 //typedef pair<UInt,vector<Double> > cuStats; //max depth, dominant direction vector 
-typedef pair<UInt,UInt> cuStats; //max depth, dominant direction vector 
+typedef pair<Int,Int> cuStats; //max depth, dominant direction vector 
 typedef vector<UInt> config;
 
 class TComComplexityBudgeter {
@@ -59,6 +59,7 @@ public:
     static Void topDownBudget();
     static Void knapSackBudget();
     static Void leafPriorityBudget();
+    static Void rootPriorityBudget();
 
     static Void ICIPBudget();
     static Void distributeBudget();
