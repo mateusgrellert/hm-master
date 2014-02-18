@@ -40,6 +40,7 @@ public:
     static Bool hadME;
     static Bool en_FME;
     static Bool testAMP;
+    static Bool activateControl;
     static Bool restore_AMVPInfo;
     static ofstream budgetFile;
     
@@ -54,6 +55,7 @@ public:
     static Void resetBudgetStats();
     static UInt promote(UInt, UInt);
     static UInt demote(UInt, UInt);
+    static Void setMaxPS();
     static Void uniformBudget();
     static Void bottomUpBudget();
     static Void topDownBudget();
@@ -68,7 +70,7 @@ public:
     static Void setDepthHistory(TComDataCU *&, UInt);
     static Void setVectorHistory(UInt, UInt, UInt);
     static Double calcWeight(UInt);
-    static Void setFrameBudget(Double, UInt);
+    static Void setFrameBudget(Double);
     static Void setEncodedCount(UInt);
     static Double estimateCycleCount(UInt , UInt);
     static Void updateConfig(TComDataCU*& cu);

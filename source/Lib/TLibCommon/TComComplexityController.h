@@ -21,6 +21,7 @@ public:
     static Double procAvail;
     static UInt procFreq;
     static Double fps;
+    static UInt countToOFF;
     static UInt budgetAlg;
     
     static UInt nEncoded;
@@ -34,7 +35,9 @@ public:
     static Double calcAchievedComp();
     static Double calcTotalComp();
     static Void printAchievedComputation();
-    static Double calcPID(UInt);
+    static Double calcPID(UInt,UInt);
+    static Double calcWeight(UInt t_layer);
+
     static Double calcSimpleControl(UInt);
     static Double calcZieglerNichols();
     static Void openPidFile();

@@ -22,6 +22,7 @@ Int TComComplexityBudgeter::searchRange;
 Bool TComComplexityBudgeter::hadME;
 Bool TComComplexityBudgeter::en_FME;
 Bool TComComplexityBudgeter::testAMP;
+Bool TComComplexityBudgeter::activateControl;
 Bool TComComplexityBudgeter::restore_AMVPInfo;
 Double TComComplexityBudgeter::frameBudget;
 std::ofstream TComComplexityBudgeter::budgetFile;
@@ -44,6 +45,7 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
     hadME = 1;
     en_FME = 1;
     testAMP = 1;
+    activateControl = false;
     searchRange = 64;
     
     for(int i = 0; i < 50; i++)
@@ -75,21 +77,7 @@ Void TComComplexityBudgeter::init(UInt w, UInt h, UInt gopSize, UInt intraP){
     }
 }
 
-Double TComComplexityBudgeter::calcWeight(UInt t_layer){
 
-
-    Double weights8[] = {2.6,1.3,0.86,0.65,0.65,0.86,0.65,0.65};
-    Double weights4[] = {0.6,0.9,0.6,1.8};
-
-    //if (t_layer == 0) return (1+origGop*0.2);
-   // return (1+origGop*0.2)/(t_layer)*1.0;
-    
-    if(origGop == 8)
-        return weights8[currPoc % (origGop)];
-    else
-        return weights4[currPoc % (origGop)];
-    //return (a1 + d*(5-t_layer));
-}
 
 void TComComplexityBudgeter::setDepthHistory(TComDataCU *&pcCU, UInt pu_idx){
       
@@ -170,6 +158,19 @@ UInt TComComplexityBudgeter::demote(UInt ctux, UInt ctuy){
     UInt new_pset = configMap[ctux][ctuy][6]-1; // downgrading pset
     setConfigMap(ctux,ctuy,new_pset);
     return new_pset;
+}
+
+Void TComComplexityBudgeter::setMaxPS(){
+        Double estCycleCount = 0.0;
+
+ for(int i = 0; i < history.size(); i++){
+        for(int j = 0; j < history[0].size(); j++){
+            if (new_hist[i][j] == -1)
+                continue;
+            setConfigMap(i,j,PS100);
+            estCycleCount = updateEstimationAndStats(estCycleCount,-1,PS100);
+        }
+    }
 }
 
 Void TComComplexityBudgeter::uniformBudget(){ 
@@ -572,15 +573,19 @@ Void TComComplexityBudgeter::distributeBudget(){
     UInt alg = TComComplexityController::budgetAlg;
     resetBudgetStats();
 
-    switch(alg){
-        case 0: uniformBudget(); break;
-        case 1: topDownBudget(); break;
-        case 2: bottomUpBudget(); break;
-        case 3: leafPriorityBudget(); break; 
-        case 4: rootPriorityBudget(); break; 
-        case 5: ICIPBudget(); break;
-        default: uniformBudget(); break;
-    }
+    if (activateControl)
+        switch(alg){
+            case 0: uniformBudget(); break;
+            case 1: topDownBudget(); break;
+            case 2: bottomUpBudget(); break;
+            case 3: leafPriorityBudget(); break; 
+            case 4: rootPriorityBudget(); break; 
+            case 5: ICIPBudget(); break;
+            default: uniformBudget(); break;
+        }
+    else
+        setMaxPS();
+    
     printBudgetStats();
 
 }
@@ -608,8 +613,8 @@ Void TComComplexityBudgeter::printBudgetStats(){
     budgetFile << endl;
 }
 
-Void TComComplexityBudgeter::setFrameBudget(Double budget, UInt t_layer){
-    frameBudget = budget*calcWeight(t_layer)*0.7;
+Void TComComplexityBudgeter::setFrameBudget(Double budget){
+    frameBudget = budget*0.8;
     //cout << budget << "\t" << calcWeight(t_layer) << endl;
 }
 

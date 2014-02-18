@@ -938,12 +938,12 @@ Void TEncGOP::compressGOP( Int iPOCLast, Int iNumPicRcvd, TComList<TComPic*>& rc
       else{
 
           if(TComComplexityBudgeter::isConstrained()){
-          Double controlOut = TComComplexityController::calcPID(TComComplexityBudgeter::nEncoded);
+          Double controlOut = TComComplexityController::calcPID(TComComplexityBudgeter::nEncoded, m_pcCfg->getGOPEntry(pcPic->getPOC()).m_QPOffset);
             //Double controlOut = TComComplexityController::calcSimpleControl(TComComplexityBudgeter::nEncoded);
 
           //if(TComComplexityBudgeter::isConstrained()){
               //TComComplexityBudgeter::calcDominantDirection();
-              TComComplexityBudgeter::setFrameBudget(controlOut, m_pcCfg->getGOPEntry(pcPic->getPOC()).m_QPOffset);
+              TComComplexityBudgeter::setFrameBudget(controlOut );
               TComComplexityBudgeter::distributeBudget();
 
          // }          Double controlOut = TComComplexityController::calcSimpleControl(TComComplexityBudgeter::nEncoded);
